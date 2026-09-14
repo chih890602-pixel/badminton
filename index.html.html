@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>羽球叫號系統｜完整自由拖曳版</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","Microsoft JhengHei",sans-serif;background:linear-gradient(135deg,#eaf9ff,#f7fff5);color:#123}
+button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}
+.header{min-height:76px;background:linear-gradient(90deg,#063d73,#087dc8);color:#fff;display:flex;align-items:center;padding:10px 22px;gap:18px;position:sticky;top:0;z-index:5;box-shadow:0 3px 14px #0002}
+.logo{font-size:28px;font-weight:900;white-space:nowrap}.logo span{font-size:36px}.tag{font-size:14px;opacity:.9}
+.headerStats{margin-left:auto;display:flex;gap:10px;flex-wrap:wrap}.pill{background:#075a9b;border:1px solid #ffffff2b;border-radius:28px;padding:10px 17px;font-weight:800}
+.layout{display:grid;grid-template-columns:94px 1fr;min-height:calc(100vh - 76px)}
+.sidebar{background:#073f75;color:#fff;padding:18px 8px;display:flex;flex-direction:column;gap:12px;align-items:center}
+.nav{width:76px;padding:10px 4px;border-radius:16px;text-align:center;background:#07528f}.nav.active{background:#0a93ed}.nav b{display:block;font-size:28px}.nav small{font-size:12px;font-weight:800}
+.main{padding:18px;max-width:1700px;width:100%;margin:auto}
+.courts{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.court{background:#0b9c63;border:7px solid #d8fff0;border-radius:17px;padding:0 10px 10px;box-shadow:0 6px 14px #0002;position:relative;min-width:0}
+.courtTitle{background:#075ea4;color:#fff;border-radius:0 0 12px 12px;padding:7px 15px;font-size:20px;font-weight:900;display:inline-flex;gap:7px}
+.courtGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 5px 8px;background:repeating-linear-gradient(90deg,#10a66c 0,#10a66c 48%,#07925c 48%,#07925c 50%,#10a66c 50%);border:2px solid #d4ffe9;min-height:170px}
+.player{touch-action:none;-webkit-user-select:none;user-select:none;cursor:grab;}border:2px solid #fff;border-radius:13px;min-height:67px;padding:7px;display:flex;align-items:center;gap:8px;background:#fff;box-shadow:0 2px 6px #0001}
+.player.male{background:#dff3ff}.player.female{background:#ffe4ef}.player.green{background:#dcf8e8}.player.yellow{background:#fff7cc}
+.avatar{width:43px;height:43px;border-radius:50%;display:grid;place-items:center;font-size:25px;background:#fff;flex:none}
+.pname{font-weight:900;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.courtFoot{display:flex;gap:8px;margin-top:3px}.speak{background:#087e5a;color:#fff;border:2px solid #fff;border-radius:50%;width:42px;height:42px;font-size:21px}.down{flex:1;background:#078ee8;color:#fff;border-radius:22px;font-size:17px;font-weight:900}
+.candidateSection{grid-column:1/-1;margin-top:4px;background:#fffdf0;border:2px dashed #e8c53a;border-radius:18px;padding:12px}
+.candidateTitle{font-size:20px;font-weight:1000;color:#806600;margin:2px 4px 10px}.candidateTitle small{font-size:13px;color:#987f25}
+.candidateCourts{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.candidateCourt{background:#b08b00;border-color:#fff7c7}.candidateCourt .courtTitle{background:#8d7000}
+.candidateCourt .courtGrid{background:repeating-linear-gradient(90deg,#c9a500 0,#c9a500 48%,#ae8e00 48%,#ae8e00 50%,#c9a500 50%);min-height:150px}
+.dashboard{display:grid;grid-template-columns:340px 1fr 330px;gap:14px;margin-top:16px}
+.panel{background:#ffffffdc;border:1px solid #cce8f5;border-radius:18px;padding:15px;box-shadow:0 5px 16px #0001}
+.panel h2{margin:0 0 12px;color:#075a94;font-size:22px}
+.callBox{background:#fff8d6;border:2px solid #ffc400;border-radius:15px;padding:16px;text-align:center}.callLabel{display:inline-block;background:#ff8c19;color:#fff;padding:8px 22px;border-radius:20px;font-weight:900}.callNames{font-size:27px;line-height:1.35;font-weight:900;color:#073f75;margin:12px 0 4px}.callCourt{font-size:20px;font-weight:900}
+.nextBox{margin-top:12px;background:#e7f7ff;border-radius:15px;padding:13px;text-align:center}.bigBtn{width:100%;background:#078ee8;color:#fff;border-radius:25px;padding:12px;font-size:18px;font-weight:900;margin-top:12px}
+.queuePanel{background:linear-gradient(180deg,#fff,#f5fbff)}.queue{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;max-height:390px;overflow:auto;padding:2px}
+.qitem{background:#fffef0;border:1px solid #eee2a4;border-radius:10px;padding:8px;display:flex;align-items:center;gap:7px;min-width:0;cursor:grab;box-shadow:0 2px 6px #0001;touch-action:none;-webkit-user-select:none;user-select:none}.qitem:active{cursor:grabbing}.qitem.dragging{opacity:.45}.qitem.dragover{outline:3px dashed #078ee8}.qitem .avatar{width:34px;height:34px;font-size:20px}.qname{font-size:14px;font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dropHint{grid-column:1/-1;border:2px dashed #078ee8;border-radius:12px;padding:12px;text-align:center;color:#0874ad;background:#eefaff;font-weight:900}
+.dragPlayer{cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none}.dragPlayer:active{cursor:grabbing}
+.touchGhost{position:fixed;z-index:9999;pointer-events:none;transform:translate(-50%,-50%) scale(1.05);opacity:.9;box-shadow:0 12px 28px #0004;border-radius:13px;min-width:170px}
+.selectedPlayer{outline:4px solid #ff9f1c!important;outline-offset:2px}
+.court.can-drop{position:relative;outline:4px solid #27c96f;outline-offset:-4px;box-shadow:0 0 0 5px #27c96f66,0 0 24px #27c96f99}
+.court.can-drop .courtGrid{position:relative;background-color:#17b86b}
+.court.can-drop .courtGrid::after{content:"✓ 可放置";position:absolute;inset:8px;display:flex;align-items:center;justify-content:center;border:4px dashed #39e77d;border-radius:14px;background:#18b866d9;color:#fff;font-size:28px;font-weight:1000;letter-spacing:2px;text-shadow:0 2px 4px #075a3a;pointer-events:none}
+.court.full-drop{outline:4px dashed #ff6b6b;outline-offset:-4px;opacity:.72}
+.queue-drop-active{outline:4px solid #27c96f!important;box-shadow:0 0 0 5px #27c96f55}
+.queue-drop-active::before{content:"✓ 可放置到休息區";display:block;grid-column:1/-1;padding:10px;border-radius:12px;background:#24c96f;color:#fff;text-align:center;font-weight:1000;font-size:18px}
+.history{display:flex;flex-direction:column;gap:8px;max-height:390px;overflow:auto}.hitem{padding:10px;border-radius:12px;background:#eef9ff;border-left:5px solid #078ee8}.hitem b{color:#075a94}
+.tools{display:flex;gap:7px;margin-top:12px}.tool{flex:1;padding:10px;border-radius:12px;background:#eef3f5;font-weight:800}.danger{background:#ffe8e8;color:#b32929}
+.modal{position:fixed;inset:0;background:#0007;display:none;align-items:center;justify-content:center;z-index:20;padding:20px}.modal.show{display:flex}.modalCard{background:white;border-radius:20px;padding:22px;max-width:520px;width:100%;max-height:90vh;overflow:auto}.modalCard h2{margin-top:0}.field{margin:10px 0}.field label{display:block;font-weight:800;margin-bottom:5px}.field input,.field select{width:100%;padding:10px;border:1px solid #ccd8df;border-radius:10px}.batch{width:100%;min-height:120px;padding:10px;border:1px solid #ccd8df;border-radius:10px}
+@media(max-width:1150px){.dashboard{grid-template-columns:1fr 1fr}.dashboard .queuePanel{grid-column:1/-1}.courts{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:850px){.candidateCourts{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){.header{min-height:70px;padding:10px;flex-wrap:wrap}.logo{font-size:21px}.logo span{font-size:28px}.tag{display:none}.headerStats{margin-left:0;width:100%;overflow:auto;flex-wrap:nowrap}.pill{font-size:12px;padding:7px 10px;white-space:nowrap}.layout{grid-template-columns:1fr}.sidebar{display:none}.main{padding:10px}.courts{grid-template-columns:1fr}.candidateCourts{grid-template-columns:1fr}.dashboard{grid-template-columns:1fr}.queue{grid-template-columns:repeat(2,1fr)}.callNames{font-size:23px}}
+</style>
+
+<style>
+.courtNameEditor{margin:12px 0;padding:12px;border:1px solid #ddd;border-radius:12px;background:#fff}
+.courtNameEditor h3{margin:0 0 10px}
+.courtNameRow{display:flex;align-items:center;gap:10px;margin:8px 0}
+.courtNameRow label{min-width:70px;font-weight:600}
+.courtNameRow input{flex:1;min-width:0;padding:9px 10px;border:1px solid #bbb;border-radius:8px;font-size:16px}
+</style>
+</head>
+<body>
+<header class="header">
+<div class="logo"><span>🏸</span> 羽球叫號系統</div><div class="tag">自由拖曳・休息區・候補區・上場區自由拖曳</div>
+<div class="headerStats">
+<div class="pill">👥 場上 <b id="onCount">0</b> 人</div>
+<div class="pill">😴 休息 <b id="waitCount">0</b> 人</div>
+<div class="pill">📋 已叫 <b id="calledCount">0</b> 組</div>
+</div>
+</header>
+<div class="layout">
+<aside class="sidebar">
+<div class="nav active" onclick="scrollTo(0,0)"><b>⌂</b><small>首頁</small></div>
+<div class="nav" onclick="openManage()"><b>⚙</b><small>球友</small></div>
+<div class="nav" onclick="nextRound()"><b>⟳</b><small>下一組</small></div>
+<div class="nav" onclick="openSettings()"><b>☷</b><small>設定<div class="courtNameEditor"><h3>場地名稱</h3><div id="courtNameSettings"></div></div></small></div>
+<div style="margin-top:auto;font-size:38px">🏸</div>
+</aside>
+<main class="main">
+<section id="courts" class="courts"></section>
+<section class="dashboard">
+<div class="panel">
+<h2>📣 叫號資訊</h2>
+<div class="callBox">
+<div class="callLabel">目前叫到</div>
+<div class="callNames" id="callNames">—</div>
+<div class="callCourt" id="callCourt">等待開始</div>
+<button class="bigBtn" onclick="repeatCall()">🔊 重複叫號</button>
+</div>
+<div class="nextBox"><b>下一組</b><div id="nextText" style="margin-top:6px;font-weight:800">—</div></div>
+<button class="bigBtn" onclick="nextRound()">🏸 下一組</button>
+<div class="tools"><button class="tool" onclick="shuffleQueue()">🎲 重新排點</button><button class="tool" onclick="openManage()">👥 球友</button></div>
+</div>
+<div class="panel queuePanel">
+<h2>😴 休息區 <small style="font-size:13px">（可自由拖曳）</small></h2>
+<div style="margin-bottom:10px;font-weight:900;color:#0874ad">目前休息：<span id="waitCount2">0</span> 人　<span style="font-size:12px;color:#789">可直接拖曳球友到候補區或上場區</span></div>
+<div id="queue" class="queue"></div>
+</div>
+<div class="panel">
+<h2>📋 已叫紀錄</h2><div id="history" class="history"></div>
+</div>
+</section>
+</main></div>
+<div id="modal" class="modal"><div class="modalCard" id="modalCard"></div></div>
+
+<script>
+const KEY="badminton_call_complete_v1";
+const oldKey="badminton_call_v3";
+let state=JSON.parse(localStorage.getItem(KEY)||"null")||{
+ settings:{courts:4,perGame:4,voice:true,random:false,courtNames:[]},
+ players:[
+  ["Julie","👦","male"],["Nancy","👩","female"],["Marco","🧑","yellow"],["恩佑","👩","green"],
+  ["Sheng","👦","male"],["亮辰","🧑","yellow"],["阿嚴","👦","male"],["Vic","👦","male"],
+  ["Amy","👩","female"],["小豪","🧑","yellow"],["小美","👩","green"],["Kevin","👴","male"],
+  ["Ella","👩","female"],["Jason","👦","male"],["Tina","👩","yellow"],["子濤","👦","male"],
+  ["阿宏","🧑","green"],["阿凱","🧑","yellow"],["小魚","👩","female"],["阿文","👦","male"],
+  ["小美","👩","female"],["大雄","👦","male"],["阿偉","🧑","yellow"],["阿湖","🧑","green"],
+  ["小玲","👩","female"],["浩哥","👦","male"],["阿志","👦","male"],["阿強","🧑","yellow"],
+  ["阿杰","👦","male"],["小龍","👦","male"],["小芬","👩","female"]
+ ].map((x,i)=>({id:i+1,name:x[0],avatar:x[1],cls:x[2]})),
+ queue:[],courts:[],candidateCourts:[null,null,null],history:[],last:null
+};
+
+if(!state.candidateCourts)state.candidateCourts=[null,null,null];
+if(!state.settings.courtNames)state.settings.courtNames=[];
+while(state.settings.courtNames.length<state.settings.courts)state.settings.courtNames.push("");
+if(!state.queue.length && !state.courts.some(Boolean) && !state.candidateCourts.some(Boolean))
+ state.queue=state.players.map(p=>p.id);
+if(!state.courts.length)state.courts=Array.from({length:state.settings.courts},()=>null);
+
+function save(){localStorage.setItem(KEY,JSON.stringify(state));render()}
+function byId(id){return state.players.find(p=>p.id===id)}
+function allGroups(){return [...state.courts,...state.candidateCourts]}
+function queuePlayers(){return state.queue.map(byId).filter(Boolean)}
+function courtLabel(i){return state.settings.courtNames?.[i]?.trim() || `第 ${String.fromCharCode(65+i)} 場地`;}
+function render(){
+  renderCourtNameSettings();
+ document.getElementById("onCount").textContent=allGroups().reduce((n,c)=>n+(c?.length||0),0);
+ document.getElementById("waitCount").textContent=state.queue.length;
+ document.getElementById("waitCount2").textContent=state.queue.length;
+ document.getElementById("calledCount").textContent=state.history.length;
+ renderCourts();renderQueue();renderHistory();
+ let last=state.last;
+ document.getElementById("callNames").textContent=last?last.players.map(p=>p.name).join("、"):"—";
+ document.getElementById("callCourt").textContent=last?`${courtLabel(last.court)}`:"等待開始";
+ let nxt=queuePlayers().slice(0,state.settings.perGame);
+ document.getElementById("nextText").textContent=nxt.length?nxt.map(p=>p.name).join("、"):"沒有等待球友";
+}
+function makeCourtElement(group,i,candidate){
+ let d=document.createElement("div");
+ d.className=candidate?"court candidateCourt":"court";
+ d.dataset.court=candidate?"c"+i:i;
+ d.dataset.candidate=candidate?"1":"0";
+ d.ondragover=allowDrop;d.ondragenter=courtDragEnter;d.ondragleave=courtDragLeave;d.ondrop=dropOnCourt;d.onclick=selectedCourtClick;
+ d.innerHTML=`<div class="courtTitle">${candidate?"🟡 候補區 "+(i+1):"🏸 "+esc(courtLabel(i))}</div><div class="courtGrid"></div><div class="courtFoot">${candidate?`<button class="speak" title="播報" onclick="speakCandidate(${i})">🔊</button><button class="down" onclick="finishCandidate(${i})">↩️ 回等候區</button>`:`<button class="speak" title="播報" onclick="speakCourt(${i})">🔊</button><button class="down" onclick="finishCourt(${i})">🏸 下場</button>`}</div>`;
+ let grid=d.querySelector(".courtGrid");
+ (group||[]).forEach(id=>{let p=byId(id);if(p)grid.insertAdjacentHTML("beforeend",playerHTML(p))});
+ if(!group)grid.insertAdjacentHTML("beforeend",`<div style="grid-column:1/-1;color:#fff;text-align:center;padding:32px;font-weight:900">${candidate?"拖曳球友到這裡":"等待下一組"}</div>`);
+ return d;
+}
+function renderCourts(){
+ let el=document.getElementById("courts");el.innerHTML="";
+ state.courts.forEach((g,i)=>el.appendChild(makeCourtElement(g,i,false)));
+ let wrap=document.createElement("div");wrap.className="candidateSection";
+ wrap.innerHTML='<div class="candidateTitle">🟡 候補區 <small>（滑鼠或手指按住球友即可拖曳；候補1→上場，候補2→候補1，候補3→候補2）</small></div>';
+ let grid=document.createElement("div");grid.className="candidateCourts";
+ state.candidateCourts.forEach((g,i)=>grid.appendChild(makeCourtElement(g,i,true)));
+ wrap.appendChild(grid);el.appendChild(wrap);
+}
+function playerHTML(p){
+ return `<div class="player dragPlayer ${p.cls}" draggable="false" data-player-id="${p.id}" ondragstart="dragPlayerStart(event,${JSON.stringify(p.id)})" onpointerdown="startPointerDrag(event,${JSON.stringify(p.id)})" ondragend="dragEnd(event)"><div class="avatar">${p.avatar}</div><div class="pname">${esc(p.name)}</div></div>`
+}
+function renderQueue(){
+ let el=document.getElementById("queue");el.innerHTML="";
+ queuePlayers().forEach((p,i)=>el.insertAdjacentHTML("beforeend",
+ `<div class="qitem" draggable="false" data-queue-index="${i}" ondragstart="queueDragStart(event,${i})" onpointerdown="startPointerQueueDrag(event,${i})" ondragover="queueDragOver(event)" ondragenter="queueDragEnter(event)" ondragleave="queueDragLeave(event)" ondrop="dropOnQueue(event,${i})" ondragend="dragEnd(event)"><div class="avatar">${p.avatar}</div><div class="qname">${esc(p.name)}</div></div>`));
+ el.insertAdjacentHTML("beforeend",`<div class="dropHint" ondragover="allowDrop(event)" ondrop="dropToQueueEnd(event)">⬇️ 拖到這裡，放到休息區最後</div>`);
+}
+function renderHistory(){
+ let el=document.getElementById("history");el.innerHTML="";
+ state.history.slice().reverse().forEach(h=>el.insertAdjacentHTML("beforeend",
+ `<div class="hitem"><b>第 ${h.round} 組</b>　${courtLabel(h.court)}<br>${h.players.map(p=>esc(p.name)).join("、")}<br><small>${h.time}</small></div>`));
+ if(!state.history.length)el.innerHTML="<div style='color:#789;text-align:center;padding:30px'>尚無叫號紀錄</div>";
+}
+
+let dragData=null, pointerDrag=null, selectedPlayerId=null;
+function markDropTargets(){
+ if(!dragData)return;
+ document.querySelectorAll(".court").forEach(c=>{
+   let candidate=c.dataset.candidate==="1";
+   let i=candidate?+c.dataset.court.slice(1):+c.dataset.court;
+   let g=candidate?state.candidateCourts[i]:state.courts[i];
+   c.classList.remove("can-drop","full-drop");
+   if((g||[]).length<state.settings.perGame)c.classList.add("can-drop");else c.classList.add("full-drop");
+ });
+ document.getElementById("queue").classList.add("queue-drop-active");
+}
+function clearDropTargets(){
+ document.querySelectorAll(".court").forEach(c=>c.classList.remove("can-drop","full-drop","dragover"));
+ document.getElementById("queue")?.classList.remove("queue-drop-active");
+}
+function startPointerDrag(e,id){
+ e.preventDefault();
+ pointerDrag={type:"player",id,startX:e.clientX,startY:e.clientY,moved:false};
+ e.currentTarget.setPointerCapture?.(e.pointerId);
+ document.addEventListener("pointermove",pointerMove,{passive:false});document.addEventListener("pointerup",pointerUp,{once:true});
+}
+function startPointerQueueDrag(e,index){
+ e.preventDefault();
+ pointerDrag={type:"queue",index,startX:e.clientX,startY:e.clientY,moved:false};
+ e.currentTarget.setPointerCapture?.(e.pointerId);
+ document.addEventListener("pointermove",pointerMove,{passive:false});document.addEventListener("pointerup",pointerUp,{once:true});
+}
+function pointerMove(e){
+ if(!pointerDrag)return;e.preventDefault();
+ let dx=e.clientX-pointerDrag.startX,dy=e.clientY-pointerDrag.startY;
+ if(!pointerDrag.moved&&Math.hypot(dx,dy)<8)return;
+ if(!pointerDrag.moved){
+   pointerDrag.moved=true;
+   dragData=pointerDrag.type==="player"?{type:"player",id:pointerDrag.id}:{type:"queue",index:pointerDrag.index};
+   markDropTargets();
+   let source=pointerDrag.type==="player"?document.querySelector(`[data-player-id="${CSS.escape(String(pointerDrag.id))}"]`):document.querySelector(`[data-queue-index="${pointerDrag.index}"]`);
+   if(source){source.classList.add("dragging");let ghost=source.cloneNode(true);ghost.classList.add("touchGhost");ghost.id="touchGhost";document.body.appendChild(ghost)}
+ }
+ let ghost=document.getElementById("touchGhost");if(ghost){ghost.style.left=e.clientX+"px";ghost.style.top=e.clientY+"px"}
+ let target=document.elementFromPoint(e.clientX,e.clientY);clearHoverDrop();
+ let court=target?.closest?.(".court"),queue=target?.closest?.("#queue");
+ if(court){
+   let candidate=court.dataset.candidate==="1",i=candidate?+court.dataset.court.slice(1):+court.dataset.court,g=candidate?state.candidateCourts[i]:state.courts[i];
+   if((g||[]).length<state.settings.perGame)court.classList.add("dragover");
+ }else if(queue)queue.classList.add("queue-drop-active");
+}
+function pointerUp(e){
+ if(!pointerDrag)return;let moved=pointerDrag.moved;
+ if(moved){
+   let target=document.elementFromPoint(e.clientX,e.clientY),court=target?.closest?.(".court"),qitem=target?.closest?.(".qitem"),queue=target?.closest?.("#queue");
+   if(court)dropOnCourt({preventDefault(){},currentTarget:court});
+   else if(qitem)dropOnQueue({preventDefault(){},currentTarget:qitem},+qitem.dataset.queueIndex);
+   else if(queue)dropToQueueEnd({preventDefault(){},currentTarget:queue});
+ }else{
+   let id=pointerDrag.type==="player"?pointerDrag.id:state.queue[pointerDrag.index];
+   if(id!==undefined){selectedPlayerId=id;document.querySelectorAll(".selectedPlayer").forEach(x=>x.classList.remove("selectedPlayer"));let el=document.querySelector(`[data-player-id="${CSS.escape(String(id))}"]`)||document.querySelector(`[data-queue-index="${pointerDrag.index}"]`);el?.classList.add("selectedPlayer");}
+ }
+ document.getElementById("touchGhost")?.remove();clearDropTargets();document.querySelectorAll(".dragging").forEach(x=>x.classList.remove("dragging"));dragData=null;pointerDrag=null;document.removeEventListener("pointermove",pointerMove);
+}
+function clearHoverDrop(){document.querySelectorAll(".court.dragover").forEach(x=>x.classList.remove("dragover"));document.getElementById("queue")?.classList.remove("queue-drop-active")}
+function dragPlayerStart(e,id){dragData={type:"player",id};e.dataTransfer.effectAllowed="move";e.dataTransfer.setData("text/plain",String(id));e.currentTarget.classList.add("dragging");markDropTargets()}
+function queueDragStart(e,index){dragData={type:"queue",index};e.dataTransfer.effectAllowed="move";e.dataTransfer.setData("text/plain","queue:"+index);e.currentTarget.classList.add("dragging");markDropTargets()}
+function allowDrop(e){e.preventDefault();e.dataTransfer.dropEffect="move"}
+function queueDragOver(e){e.preventDefault();e.dataTransfer.dropEffect="move"}
+function queueDragEnter(e){e.preventDefault();e.currentTarget.classList.add("dragover")}
+function queueDragLeave(e){e.currentTarget.classList.remove("dragover")}
+function courtDragEnter(e){e.preventDefault();e.currentTarget.classList.add("dragover")}
+function courtDragLeave(e){if(!e.currentTarget.contains(e.relatedTarget))e.currentTarget.classList.remove("dragover")}
+function dragEnd(){document.querySelectorAll(".dragging,.dragover").forEach(x=>x.classList.remove("dragging","dragover"));clearDropTargets();dragData=null}
+function removeFromAllLocations(id){
+ state.queue=state.queue.filter(x=>x!==id);
+ state.courts=state.courts.map(g=>g?g.filter(x=>x!==id):g);
+ state.candidateCourts=state.candidateCourts.map(g=>g?g.filter(x=>x!==id):g);
+}
+function dropOnCourt(e){
+ e.preventDefault();let ce=e.currentTarget,candidate=ce.dataset.candidate==="1",i=candidate?+ce.dataset.court.slice(1):+ce.dataset.court;
+ ce.classList.remove("dragover");if(!dragData)return;
+ let id=dragData.type==="queue"?state.queue[dragData.index]:dragData.id;if(id===undefined)return;
+ let group=candidate?state.candidateCourts[i]:state.courts[i];
+ if((group||[]).length>=state.settings.perGame&&!(group||[]).includes(id)){alert(`${candidate?"候補場地 "+(i+1):"場地 "+String.fromCharCode(65+i)} 已經有 ${state.settings.perGame} 人。`);return}
+ removeFromAllLocations(id);
+ if(candidate){if(!state.candidateCourts[i])state.candidateCourts[i]=[];state.candidateCourts[i].push(id)}
+ else{if(!state.courts[i])state.courts[i]=[];state.courts[i].push(id)}
+ clearDropTargets();dragData=null;selectedPlayerId=null;save();
+}
+function dropOnQueue(e,index){
+ e.preventDefault();e.currentTarget.classList.remove("dragover");if(!dragData)return;
+ let id=dragData.type==="queue"?state.queue[dragData.index]:dragData.id;if(id===undefined)return;
+ if(dragData.type==="queue")state.queue.splice(dragData.index,1);else removeFromAllLocations(id);
+ let target=Math.max(0,Math.min(index,state.queue.length));state.queue.splice(target,0,id);
+ clearDropTargets();dragData=null;selectedPlayerId=null;save();
+}
+function dropToQueueEnd(e){
+ e.preventDefault();if(!dragData)return;
+ let id=dragData.type==="queue"?state.queue[dragData.index]:dragData.id;if(id===undefined)return;
+ if(dragData.type==="queue")state.queue.splice(dragData.index,1);else removeFromAllLocations(id);
+ state.queue.push(id);clearDropTargets();dragData=null;selectedPlayerId=null;save();
+}
+function selectedCourtClick(e){
+ if(!selectedPlayerId)return;
+ let ce=e.currentTarget,candidate=ce.dataset.candidate==="1",i=candidate?+ce.dataset.court.slice(1):+ce.dataset.court,group=candidate?state.candidateCourts[i]:state.courts[i];
+ if((group||[]).length>=state.settings.perGame){alert(`${candidate?"候補場地 "+(i+1):"場地 "+String.fromCharCode(65+i)} 已滿 ${state.settings.perGame} 人`);return}
+ removeFromAllLocations(selectedPlayerId);
+ if(candidate){if(!state.candidateCourts[i])state.candidateCourts[i]=[];state.candidateCourts[i].push(selectedPlayerId)}
+ else{if(!state.courts[i])state.courts[i]=[];state.courts[i].push(selectedPlayerId)}
+ selectedPlayerId=null;save();
+}
+function nextRound(){
+  let ci=state.courts.findIndex(c=>!c);
+  if(ci<0){alert("目前沒有空的正式場地");return}
+  if(state.queue.length===0){alert("休息區目前沒有人");return}
+  let take=Math.min(state.settings.perGame,state.queue.length);
+  let ids=state.queue.splice(0,take);
+  state.courts[ci]=ids;
+  state.last={round:state.history.length+1,court:ci,players:ids.map(byId).filter(Boolean),time:new Date().toLocaleTimeString("zh-TW")};
+  state.history.push(state.last);
+  save();
+  speakText(`請 ${ids.map(id=>byId(id)?.name).filter(Boolean).join("、")} 到${courtLabel(ci)}`);
+}
+function finishCourt(i){
+  if(!state.courts[i])return;
+  let oldGroup=state.courts[i].slice();
+  let promote=state.candidateCourts[0]?.slice()||null;
+  let shift1=state.candidateCourts[1]?.slice()||null;
+  let shift2=state.candidateCourts[2]?.slice()||null;
+  let msg=`確定${courtLabel(i)}的球友下場嗎？`;
+  if(promote){msg+=`
+
+候補區 1（${promote.map(id=>byId(id)?.name).filter(Boolean).join("、")}）會直接上${courtLabel(i)}。`;if(shift1)msg+=`
+候補區 2 會往前補到候補區 1。`;if(shift2)msg+=`
+候補區 3 會往前補到候補區 2。`;}
+  if(!confirm(msg))return;
+  state.courts[i]=promote;
+  state.candidateCourts[0]=shift1;
+  state.candidateCourts[1]=shift2;
+  state.candidateCourts[2]=null;
+  oldGroup.forEach(id=>{if(!state.queue.includes(id))state.queue.push(id)});
+  if(promote){state.last={round:state.history.length+1,court:i,players:promote.map(byId).filter(Boolean),time:new Date().toLocaleTimeString("zh-TW")};state.history.push(state.last);save();speakText(`請 ${promote.map(id=>byId(id)?.name).filter(Boolean).join("、")} 到${courtLabel(i)}`);}else save();
+}
+function finishCandidate(i){if(!state.candidateCourts[i])return;if(confirm(`確定把候補區 ${i+1} 的球友放回等候區嗎？`)){state.candidateCourts[i].forEach(id=>{if(!state.queue.includes(id))state.queue.push(id)});state.candidateCourts[i]=null;save()}}
+function speakCourt(i){let g=state.courts[i];if(g)speakText(`${courtLabel(i)}，目前是 ${g.map(id=>byId(id)?.name).filter(Boolean).join("、")}`)}
+function speakCandidate(i){let g=state.candidateCourts[i];if(g)speakText(`候補區 ${i+1}，目前是 ${g.map(id=>byId(id)?.name).filter(Boolean).join("、")}`)}
+function repeatCall(){if(state.last)speakText(`請 ${state.last.players.map(p=>p.name).join("、")} 到${courtLabel(state.last.court)}`)}
+function speakText(t){if(!state.settings.voice||!("speechSynthesis"in window))return;speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(t);u.lang="zh-TW";u.rate=.9;speechSynthesis.speak(u)}
+function shuffleQueue(){state.queue.sort(()=>Math.random()-.5);save()}
+
+function openManage(){
+ let m=document.getElementById("modal"),c=document.getElementById("modalCard");
+ c.innerHTML=`<h2>👥 球友名單</h2>
+ <div class="field"><label>新增姓名</label><input id="newName" placeholder="例如：小明"></div>
+ <div class="field"><label>批次加入（每行一人）</label><textarea id="batch" class="batch" placeholder="小明\n小華\n小美"></textarea></div>
+ <div class="tools"><button class="tool" onclick="addPlayers()">➕ 新增</button><button class="tool danger" onclick="closeModal()">關閉</button></div>
+ <hr><div style="font-weight:900;margin-bottom:8px">目前球友：${state.players.length} 人</div>
+ <div style="max-height:330px;overflow:auto">${state.players.map(p=>`<div style="padding:8px;border-bottom:1px solid #eee;display:flex;align-items:center;gap:8px"><span style="flex:1">${p.avatar} ${esc(p.name)}</span><button class="tool" style="flex:0 0 auto;padding:6px 10px;background:#e7f7ff;color:#075a94" onclick="editPlayer(${JSON.stringify(p.id)})">✏️ 修改</button><button class="tool danger" style="flex:0 0 auto;padding:6px 10px" onclick="deletePlayer(${JSON.stringify(p.id)})">🗑️ 刪除</button></div>`).join("")}</div>`;
+ m.classList.add("show");
+}
+function addPlayers(){
+ let a=[],n=document.getElementById("newName").value.trim();if(n)a.push(n);
+ a.push(...document.getElementById("batch").value.split(/\n/).map(x=>x.trim()).filter(Boolean));
+ a.forEach((name,i)=>{let p={id:"p"+Date.now()+Math.random(),name,avatar:i%3?"👦":"👩",cls:i%2?"male":"female"};state.players.push(p);state.queue.push(p.id)});
+ save();openManage();
+}
+function editPlayer(id){
+ let p=byId(id);if(!p)return;let name=prompt("請輸入新的姓名：",p.name);if(name===null)return;name=name.trim();
+ if(!name){alert("姓名不能是空白。");return}p.name=name;save();openManage();
+}
+function deletePlayer(id){
+ let p=byId(id);if(!p)return;if(!confirm(`確定要刪除「${p.name}」嗎？`))return;
+ removeFromAllLocations(id);state.players=state.players.filter(x=>x.id!==id);
+ if(state.last?.players?.some(x=>x.id===id))state.last=null;
+ save();openManage();
+}
+function openSettings(){
+ let m=document.getElementById("modal"),c=document.getElementById("modalCard");
+ c.innerHTML=`<h2>⚙️ 系統設定</h2>
+ <div class="field"><label>正式球場數量</label><input id="setCourts" type="number" min="1" max="12" value="${state.settings.courts}"></div>
+ <div class="field"><label>每組人數</label><select id="setPer"><option value="2" ${state.settings.perGame==2?"selected":""}>2 人（單打）</option><option value="4" ${state.settings.perGame==4?"selected":""}>4 人（雙打）</option></select></div>
+ <div class="field"><label>叫號模式</label><select id="setRandom"><option value="0" ${!state.settings.random?"selected":""}>依序</option><option value="1" ${state.settings.random?"selected":""}>隨機</option></select></div>
+ <div class="field"><label>語音</label><select id="setVoice"><option value="1" ${state.settings.voice?"selected":""}>開啟</option><option value="0" ${!state.settings.voice?"selected":""}>關閉</option></select></div>
+ <div class="tools"><button class="tool" onclick="applySettings()">儲存設定</button><button class="tool danger" onclick="closeModal()">關閉</button></div>
+ <button class="bigBtn" style="background:#d64545" onclick="resetSystem()">⚠️ 重設所有資料</button>`;
+ m.classList.add("show");
+}
+function applySettings(){
+  let old=state.settings.courts;
+  state.settings.courts=Math.max(1,Math.min(12,+document.getElementById("setCourts").value||4));
+  state.settings.perGame=+document.getElementById("setPer").value;
+  state.settings.random=document.getElementById("setRandom").value==="1";
+  state.settings.voice=document.getElementById("setVoice").value==="1";
+  let names=document.getElementById("setCourtNames").value.split(/\n/).map(x=>x.trim());
+  state.settings.courtNames=Array.from({length:state.settings.courts},(_,i)=>names[i]||"");
+  if(state.settings.courts>old)while(state.courts.length<state.settings.courts)state.courts.push(null);
+  else state.courts=state.courts.slice(0,state.settings.courts);
+  closeModal();save();
+}
+function resetSystem(){
+ if(confirm("確定要清除所有叫號紀錄，並讓所有球友回到等候區嗎？")){
+  state.courts=Array.from({length:state.settings.courts},()=>null);state.candidateCourts=[null,null,null];
+  state.queue=state.players.map(p=>p.id);state.history=[];state.last=null;closeModal();save();
+ }
+}
+function closeModal(){document.getElementById("modal").classList.remove("show")}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+document.getElementById("modal").addEventListener("click",e=>{if(e.target.id==="modal")closeModal()});
+render();
+
+// 人工排點：固定依休息區目前排列順序上場，不使用隨機抽選。
+// 休息區內的球友可單人自由拖曳到正式場地或任一候補區。
+state.settings.random=false;
+renderCourtNameSettings();
+
+// 拖曳採用 Pointer Events：滑鼠與手機觸控都可直接按住球友拖曳。
+// 排點固定依目前休息區順序，不使用隨機。
+state.settings.random=false;
+
+function renderCourtNameSettings(){
+  const el=document.getElementById("courtNameSettings");
+  if(!el)return;
+  const n=Number(state.settings.courts)||4;
+  if(!Array.isArray(state.settings.courtNames)) state.settings.courtNames=[];
+  while(state.settings.courtNames.length<n) state.settings.courtNames.push(String.fromCharCode(65+state.settings.courtNames.length));
+  el.innerHTML="";
+  for(let i=0;i<n;i++){
+    const row=document.createElement("div");
+    row.className="courtNameRow";
+    row.innerHTML=`<label>${i+1}號場地</label><input type="text" value="${String(state.settings.courtNames[i]||"").replace(/"/g,"&quot;")}" placeholder="例如：A場、紅場、1號場">`;
+    const input=row.querySelector("input");
+    input.addEventListener("input",()=>{
+      state.settings.courtNames[i]=input.value.trim() || String.fromCharCode(65+i);
+      render();
+      save();
+    });
+    el.appendChild(row);
+  }
+}
+</script>
+<script>window.addEventListener('DOMContentLoaded',()=>{renderCourtNameSettings();});</script></body>
+</html>
