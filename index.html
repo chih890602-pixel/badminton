@@ -61,6 +61,90 @@ button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}
 .courtNameRow label{min-width:70px;font-weight:600}
 .courtNameRow input{flex:1;min-width:0;padding:9px 10px;border:1px solid #bbb;border-radius:8px;font-size:16px}
 </style>
+
+<style id="ipad-fullscreen-layout">
+@media (min-width:900px) and (max-width:1500px) and (orientation:landscape){
+html,body{width:100%;height:100%;overflow:hidden}
+.header{position:relative;min-height:48px;height:48px;padding:4px 10px;gap:8px}
+.logo{font-size:18px}.logo span{font-size:24px}.tag{font-size:10px}
+.headerStats{gap:5px;flex-wrap:nowrap}.pill{padding:5px 9px;font-size:11px;white-space:nowrap}
+.layout{grid-template-columns:60px minmax(0,1fr);height:calc(100dvh - 48px);min-height:0;overflow:hidden}
+.sidebar{padding:6px 3px;gap:5px;overflow:hidden}.nav{width:51px;padding:4px 2px;border-radius:9px}.nav b{font-size:18px}.nav small{font-size:9px}
+.main{padding:6px;max-width:none;height:100%;overflow:hidden;display:grid;grid-template-rows:minmax(0,64%) minmax(0,36%);gap:6px}
+.courts{min-height:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:minmax(0,53%) minmax(0,47%);gap:5px}
+.court{border-width:3px;border-radius:9px;padding:0 4px 4px;box-shadow:none;min-height:0;overflow:hidden}
+.courtTitle{padding:2px 6px;border-radius:0 0 7px 7px;font-size:12px}
+.courtGrid{gap:3px;padding:4px 2px 3px;min-height:0;height:calc(100% - 43px);align-content:stretch}
+.player{min-height:0!important;height:100%;padding:2px 4px!important;gap:3px!important;border-radius:7px!important}
+.avatar{width:25px;height:25px;font-size:15px}.pname{font-size:11px}
+.courtFoot{gap:3px;margin-top:1px;height:27px}.speak{width:27px;height:27px;font-size:12px;border-width:1px}.down{font-size:10px;border-radius:14px}
+.candidateSection{grid-column:1/-1;min-height:0;margin-top:0;padding:4px;border-radius:9px;overflow:hidden}
+.candidateTitle{font-size:12px;margin:0 2px 3px;height:16px;overflow:hidden;white-space:nowrap}.candidateTitle small{font-size:9px}
+.candidateCourts{height:calc(100% - 19px);grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.candidateCourt .courtGrid{min-height:0}
+.dashboard{min-height:0;margin-top:0;display:grid;grid-template-columns:23% 54% 23%;gap:6px;overflow:hidden}
+.panel{min-height:0;padding:6px;border-radius:9px;overflow:hidden}.panel h2{margin:0 0 4px;font-size:13px}
+.callBox{padding:5px;border-radius:8px}.callLabel{padding:2px 8px;font-size:9px}.callNames{font-size:14px;margin:3px 0 1px;line-height:1.1}.callCourt{font-size:11px}
+.bigBtn{padding:5px;margin-top:4px;font-size:11px;border-radius:14px}.nextBox{margin-top:4px;padding:4px;font-size:10px}.tools{margin-top:4px;gap:3px}.tool{padding:5px;font-size:9px;border-radius:7px}
+.queuePanel{display:flex;flex-direction:column}.queuePanel>div:nth-of-type(1){margin-bottom:3px!important;font-size:10px}
+.queue{flex:1;min-height:0;max-height:none;overflow:auto;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px;padding:1px;-webkit-overflow-scrolling:touch}
+.qitem{min-height:35px;padding:2px 4px;gap:3px;border-radius:6px}.qitem .avatar{width:23px;height:23px;font-size:14px}.qname{font-size:10px}
+.dropHint{padding:4px;font-size:9px;border-radius:6px}.history{max-height:none;height:calc(100% - 20px);overflow:auto;gap:3px}.hitem{padding:4px;font-size:9px;border-radius:6px;border-left-width:3px}
+.touchGhost{min-width:110px}
+}
+@media (min-width:700px) and (max-width:1100px) and (orientation:portrait){
+.courts{grid-template-columns:repeat(2,1fr)}.candidateCourts{grid-template-columns:repeat(3,1fr)}
+}
+</style>
+
+
+<style id="tap-move-ui">
+/* iPad 點選移動：先點球友，再點目的地 */
+.selectedPlayer{
+  outline:4px solid #ff9f1c!important;
+  outline-offset:2px;
+  transform:scale(.98);
+}
+.tapMoveBar{
+  position:fixed;
+  left:50%;
+  bottom:max(10px,env(safe-area-inset-bottom));
+  transform:translateX(-50%);
+  z-index:9998;
+  display:none;
+  align-items:center;
+  gap:8px;
+  max-width:94vw;
+  padding:8px 10px;
+  border-radius:18px;
+  background:#073f75f2;
+  color:white;
+  box-shadow:0 8px 28px #0005;
+  font-weight:900;
+}
+.tapMoveBar.show{display:flex}
+.tapMoveBar button{
+  padding:8px 11px;
+  border-radius:14px;
+  background:#fff;
+  color:#073f75;
+  font-weight:900;
+  white-space:nowrap;
+}
+.tapMoveBar .cancelMove{background:#ffe4e4;color:#a62020}
+.tapDestination{
+  outline:4px solid #ffb000!important;
+  outline-offset:-4px;
+  cursor:pointer;
+}
+.queuePanel.tapDestination{
+  box-shadow:inset 0 0 0 4px #ffb000,0 5px 16px #0001;
+}
+@media (min-width:900px) and (max-width:1500px) and (orientation:landscape){
+  .tapMoveBar{font-size:11px;padding:5px 7px;gap:5px}
+  .tapMoveBar button{padding:5px 7px;font-size:10px}
+}
+</style>
+
 </head>
 <body>
 <header class="header">
@@ -423,5 +507,74 @@ function renderCourtNameSettings(){
   }
 }
 </script>
-<script>window.addEventListener('DOMContentLoaded',()=>{renderCourtNameSettings();});</script></body>
+<script>window.addEventListener('DOMContentLoaded',()=>{renderCourtNameSettings();});</script>
+<script id="tap-move-enhancement">
+(function(){
+  function getSelectedPlayer(){
+    if(typeof selectedPlayerId === "undefined" || selectedPlayerId == null) return null;
+    return typeof byId === "function" ? byId(selectedPlayerId) : null;
+  }
+
+  function ensureBar(){
+    let bar=document.getElementById("tapMoveBar");
+    if(bar) return bar;
+    bar=document.createElement("div");
+    bar.id="tapMoveBar";
+    bar.className="tapMoveBar";
+    bar.innerHTML='<span id="tapMoveText">已選取球友</span><button onclick="tapMoveQueue()">😴 休息區</button><button onclick="tapCancelMove()" class="cancelMove">✕ 取消</button>';
+    document.body.appendChild(bar);
+    return bar;
+  }
+
+  window.refreshTapMoveUI=function(){
+    const p=getSelectedPlayer(), bar=ensureBar();
+    document.querySelectorAll(".tapDestination").forEach(x=>x.classList.remove("tapDestination"));
+    if(!p){ bar.classList.remove("show"); return; }
+    document.getElementById("tapMoveText").textContent="已選："+p.name+" → 點球場/候補區";
+    bar.classList.add("show");
+    document.querySelectorAll(".court").forEach(c=>c.classList.add("tapDestination"));
+    document.querySelector(".queuePanel")?.classList.add("tapDestination");
+  };
+
+  window.tapCancelMove=function(){
+    selectedPlayerId=null;
+    document.querySelectorAll(".selectedPlayer").forEach(x=>x.classList.remove("selectedPlayer"));
+    refreshTapMoveUI();
+  };
+
+  window.tapMoveQueue=function(){
+    if(selectedPlayerId==null)return;
+    const id=selectedPlayerId;
+    removeFromAllLocations(id);
+    if(!state.queue.includes(id))state.queue.push(id);
+    selectedPlayerId=null;
+    save();
+    setTimeout(refreshTapMoveUI,0);
+  };
+
+  // 讓「休息區整塊」也可作為點選目的地。
+  document.addEventListener("click",function(e){
+    if(selectedPlayerId==null)return;
+    const qp=e.target.closest?.(".queuePanel");
+    if(!qp || e.target.closest(".qitem"))return;
+    e.preventDefault();
+    tapMoveQueue();
+  },true);
+
+  // 原程式 pointerUp 在未拖曳時會選取球友；同步顯示操作提示。
+  document.addEventListener("pointerup",function(){
+    setTimeout(refreshTapMoveUI,0);
+  });
+
+  // 場地點擊完成移動後同步清掉提示。
+  document.addEventListener("click",function(e){
+    if(e.target.closest?.(".court")) setTimeout(refreshTapMoveUI,0);
+  });
+
+  ensureBar();
+  refreshTapMoveUI();
+})();
+</script>
+
+</body>
 </html>
