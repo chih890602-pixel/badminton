@@ -145,6 +145,99 @@ html,body{width:100%;height:100%;overflow:hidden}
 }
 </style>
 
+
+<style id="phone-tablet-responsive-fullscreen">
+/* 手機 + 平板共用網址：依螢幕自動縮放為一頁操作介面 */
+html,body{overscroll-behavior:none}
+
+/* iPhone / 小螢幕：建議橫向，整頁不需上下捲動 */
+@media (max-width:899px) and (orientation:landscape){
+  html,body{width:100%;height:100%;overflow:hidden}
+  .header{position:relative;height:38px;min-height:38px;padding:3px 6px;gap:4px}
+  .logo{font-size:12px;gap:3px}.logo span{font-size:17px}.tag{display:none}
+  .headerStats{gap:3px;flex-wrap:nowrap}.pill{padding:3px 5px;font-size:8px;white-space:nowrap}
+  .layout{grid-template-columns:42px minmax(0,1fr);height:calc(100dvh - 38px);min-height:0;overflow:hidden}
+  .sidebar{padding:3px 2px;gap:2px;overflow:hidden}.nav{width:36px;padding:2px 1px;border-radius:6px}.nav b{font-size:13px}.nav small{font-size:6px}
+  .main{padding:3px;max-width:none;height:100%;overflow:hidden;display:grid;grid-template-rows:minmax(0,63%) minmax(0,37%);gap:3px}
+  .courts{min-height:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:minmax(0,52%) minmax(0,48%);gap:3px}
+  .court{border-width:2px;border-radius:6px;padding:0 2px 2px;box-shadow:none;min-height:0;overflow:hidden}
+  .courtTitle{padding:1px 3px;border-radius:0 0 4px 4px;font-size:8px}
+  .courtGrid{gap:2px;padding:2px 1px 1px;min-height:0;height:calc(100% - 30px);align-content:stretch}
+  .player{min-height:0!important;height:100%;padding:1px 2px!important;gap:1px!important;border-radius:4px!important;border-width:1px!important}
+  .avatar{width:16px;height:16px;font-size:10px}.pname{font-size:7px}.courtFoot{gap:2px;margin-top:1px;height:20px}
+  .speak{width:20px;height:20px;font-size:9px;border-width:1px}.down{font-size:7px;border-radius:10px}
+  .candidateSection{grid-column:1/-1;min-height:0;margin:0;padding:2px;border-radius:6px;overflow:hidden}
+  .candidateTitle{font-size:8px;margin:0 1px 2px;height:11px;overflow:hidden;white-space:nowrap}.candidateTitle small{display:none}
+  .candidateCourts{height:calc(100% - 13px);grid-template-columns:repeat(3,minmax(0,1fr));gap:3px}
+  .dashboard{min-height:0;margin:0;display:grid;grid-template-columns:22% 56% 22%;gap:3px;overflow:hidden}
+  .panel{min-height:0;padding:3px;border-radius:6px;overflow:hidden}.panel h2{margin:0 0 2px;font-size:8px}
+  .callBox{padding:2px;border-radius:5px}.callLabel{padding:1px 4px;font-size:6px}.callNames{font-size:9px;margin:2px 0 0;line-height:1}.callCourt{font-size:7px}
+  .bigBtn{padding:2px;margin-top:2px;font-size:7px;border-radius:8px}.nextBox{margin-top:2px;padding:2px;font-size:6px}.tools{margin-top:2px;gap:2px}.tool{padding:2px;font-size:6px;border-radius:4px}
+  .queuePanel{display:flex;flex-direction:column}.queuePanel>div:nth-of-type(1){margin-bottom:2px!important;font-size:7px}
+  .queue{flex:1;min-height:0;max-height:none;overflow:auto;grid-template-columns:repeat(4,minmax(0,1fr));gap:2px;padding:0;-webkit-overflow-scrolling:touch}
+  .qitem{min-height:23px;padding:1px 2px;gap:2px;border-radius:4px;border-width:1px}.qitem .avatar{width:15px;height:15px;font-size:9px}.qname{font-size:7px}
+  .dropHint{padding:2px;font-size:6px;border-radius:4px}.history{max-height:none;height:calc(100% - 13px);overflow:auto;gap:2px}.hitem{padding:2px;font-size:6px;border-radius:4px;border-left-width:2px}
+  .tapMoveBar{font-size:8px!important;padding:3px 5px!important;gap:3px!important;bottom:3px!important}
+  .tapMoveBar button{padding:3px 5px!important;font-size:7px!important}
+}
+
+/* 手機直向：旋轉提示，避免把完整系統硬擠到窄畫面 */
+@media (max-width:699px) and (orientation:portrait){
+  body:before{
+    content:"🏸 請將手機橫向使用｜橫向後會自動顯示完整排點畫面";
+    position:fixed;inset:0;z-index:100000;background:#073f75;color:white;
+    display:flex;align-items:center;justify-content:center;text-align:center;
+    padding:28px;font-size:20px;font-weight:900;line-height:1.6;
+  }
+}
+</style>
+
+<style id="iphone-full-nocloud">
+@media(max-width:699px) and (orientation:portrait){
+body:before{display:none!important;content:none!important}html,body{height:100%;overflow:hidden!important}
+.header{position:relative!important;height:40px!important;min-height:40px!important;padding:3px 5px!important;flex-wrap:nowrap!important}
+.logo{font-size:12px!important}.logo span{font-size:17px!important}.tag{display:none!important}
+.headerStats{margin-left:auto!important;width:auto!important;gap:2px!important;overflow:visible!important}.pill{font-size:7px!important;padding:3px!important}
+.layout{display:block!important;height:calc(100dvh - 40px)!important;min-height:0!important;overflow:hidden!important}.sidebar{display:none!important}
+.main{padding:3px!important;height:100%!important;overflow:hidden!important;display:grid!important;grid-template-rows:61% 39%!important;gap:3px!important}
+.courts{min-height:0!important;display:grid!important;grid-template-columns:repeat(2,1fr)!important;grid-template-rows:35% 35% 30%!important;gap:3px!important}
+.court{border-width:2px!important;border-radius:5px!important;padding:0 2px 2px!important;min-height:0!important;overflow:hidden!important}
+.courtTitle{font-size:8px!important;padding:1px 3px!important}.courtGrid{gap:1px!important;padding:2px 1px!important;min-height:0!important;height:calc(100% - 27px)!important}
+.player{min-height:0!important;height:100%!important;padding:1px 2px!important;gap:1px!important;border-radius:3px!important;border-width:1px!important}
+.avatar{width:15px!important;height:15px!important;font-size:9px!important}.pname{font-size:7px!important}
+.courtFoot{height:17px!important;gap:1px!important;margin-top:1px!important}.speak{width:17px!important;height:17px!important;font-size:8px!important}.down{font-size:6px!important}
+.candidateSection{grid-column:1/-1!important;min-height:0!important;margin:0!important;padding:2px!important;overflow:hidden!important}
+.candidateTitle{font-size:8px!important;height:10px!important;margin:0 1px 1px!important;overflow:hidden!important}.candidateTitle small{display:none!important}
+.candidateCourts{height:calc(100% - 11px)!important;grid-template-columns:repeat(3,1fr)!important;gap:2px!important}
+.dashboard{min-height:0!important;margin:0!important;display:grid!important;grid-template-columns:28% 72%!important;gap:3px!important;overflow:hidden!important}
+.dashboard>.panel:last-child{display:none!important}.panel{min-height:0!important;padding:3px!important;border-radius:5px!important;overflow:hidden!important}.panel h2{font-size:8px!important;margin:0 0 2px!important}
+.callBox{padding:2px!important}.callLabel{font-size:6px!important;padding:1px 3px!important}.callNames{font-size:9px!important;margin:2px 0!important}.callCourt{font-size:7px!important}
+.bigBtn{font-size:7px!important;padding:3px!important;margin-top:2px!important}.nextBox{font-size:6px!important;padding:2px!important;margin-top:2px!important}
+.tools{margin-top:2px!important;gap:1px!important}.tool{font-size:6px!important;padding:2px!important}
+.queuePanel{display:flex!important;flex-direction:column!important}.queuePanel>div:nth-of-type(1){font-size:7px!important;margin-bottom:1px!important}
+.queue{flex:1!important;min-height:0!important;max-height:none!important;overflow:auto!important;grid-template-columns:repeat(3,1fr)!important;gap:2px!important;padding:0!important}
+.qitem{min-height:23px!important;padding:1px 2px!important;gap:1px!important}.qitem .avatar{width:14px!important;height:14px!important;font-size:8px!important}.qname{font-size:7px!important}
+.dropHint{font-size:6px!important;padding:2px!important}.tapMoveBar{font-size:7px!important;padding:3px!important;gap:2px!important;bottom:2px!important}.tapMoveBar button{font-size:7px!important;padding:3px!important}
+}
+</style>
+<style id="four-slot-and-court-edit">
+.courtGrid{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr))}
+.emptyPlayerSlot{
+ display:flex;flex-direction:column;align-items:center;justify-content:center;
+ min-height:0;border:2px dashed rgba(255,255,255,.65);border-radius:8px;
+ color:#fff;background:rgba(255,255,255,.08);font-weight:900;cursor:pointer;
+}
+.emptyPlayerSlot small{font-size:9px;opacity:.9}
+.courtEditBtn{
+ border:0;background:rgba(255,255,255,.92);border-radius:8px;padding:2px 5px;
+ font-size:11px;cursor:pointer;vertical-align:middle;
+}
+@media(max-width:899px){
+ .emptyPlayerSlot{border-width:1px;border-radius:4px;font-size:9px}
+ .emptyPlayerSlot small{font-size:5px}
+ .courtEditBtn{font-size:7px;padding:1px 3px;border-radius:4px}
+}
+</style>
 </head>
 <body>
 <header class="header">
@@ -239,10 +332,14 @@ function makeCourtElement(group,i,candidate){
  d.dataset.court=candidate?"c"+i:i;
  d.dataset.candidate=candidate?"1":"0";
  d.ondragover=allowDrop;d.ondragenter=courtDragEnter;d.ondragleave=courtDragLeave;d.ondrop=dropOnCourt;d.onclick=selectedCourtClick;
- d.innerHTML=`<div class="courtTitle">${candidate?"🟡 候補區 "+(i+1):"🏸 "+esc(courtLabel(i))}</div><div class="courtGrid"></div><div class="courtFoot">${candidate?`<button class="speak" title="播報" onclick="speakCandidate(${i})">🔊</button><button class="down" onclick="finishCandidate(${i})">↩️ 回等候區</button>`:`<button class="speak" title="播報" onclick="speakCourt(${i})">🔊</button><button class="down" onclick="finishCourt(${i})">🏸 下場</button>`}</div>`;
+ d.innerHTML=`<div class="courtTitle">${candidate?"🟡 候補區 "+(i+1):`🏸 ${esc(courtLabel(i))} <button class="courtEditBtn" onclick="event.stopPropagation();editCourtName(${i})" title="修改場地名稱">✏️</button>`}</div><div class="courtGrid"></div><div class="courtFoot">${candidate?`<button class="speak" title="播報" onclick="event.stopPropagation();speakCandidate(${i})">🔊</button><button class="down" onclick="event.stopPropagation();finishCandidate(${i})">↩️ 回等候區</button>`:`<button class="speak" title="播報" onclick="event.stopPropagation();speakCourt(${i})">🔊</button><button class="down" onclick="event.stopPropagation();finishCourt(${i})">🏸 下場</button>`}</div>`;
  let grid=d.querySelector(".courtGrid");
  (group||[]).forEach(id=>{let p=byId(id);if(p)grid.insertAdjacentHTML("beforeend",playerHTML(p))});
- if(!group)grid.insertAdjacentHTML("beforeend",`<div style="grid-column:1/-1;color:#fff;text-align:center;padding:32px;font-weight:900">${candidate?"拖曳球友到這裡":"等待下一組"}</div>`);
+ // 永遠保留到每場 4 個可點選位置，避免已有 2 人後點不到空白區。
+ let capacity=state.settings.perGame||4;
+ for(let s=(group||[]).length;s<capacity;s++){
+   grid.insertAdjacentHTML("beforeend",`<div class="emptyPlayerSlot" title="先點球友，再點這裡">＋<small>點選放入</small></div>`);
+ }
  return d;
 }
 function renderCourts(){
@@ -378,6 +475,15 @@ function selectedCourtClick(e){
  else{if(!state.courts[i])state.courts[i]=[];state.courts[i].push(selectedPlayerId)}
  selectedPlayerId=null;save();
 }
+function editCourtName(i){
+ let current=state.settings.courtNames?.[i] || courtLabel(i);
+ let name=prompt("請輸入新的場地名稱：",current);
+ if(name===null)return;
+ name=name.trim();
+ if(!Array.isArray(state.settings.courtNames))state.settings.courtNames=[];
+ state.settings.courtNames[i]=name || `第 ${String.fromCharCode(65+i)} 場地`;
+ save();
+}
 function nextRound(){
   let ci=state.courts.findIndex(c=>!c);
   if(ci<0){alert("目前沒有空的正式場地");return}
@@ -450,6 +556,7 @@ function openSettings(){
  <div class="field"><label>每組人數</label><select id="setPer"><option value="2" ${state.settings.perGame==2?"selected":""}>2 人（單打）</option><option value="4" ${state.settings.perGame==4?"selected":""}>4 人（雙打）</option></select></div>
  <div class="field"><label>叫號模式</label><select id="setRandom"><option value="0" ${!state.settings.random?"selected":""}>依序</option><option value="1" ${state.settings.random?"selected":""}>隨機</option></select></div>
  <div class="field"><label>語音</label><select id="setVoice"><option value="1" ${state.settings.voice?"selected":""}>開啟</option><option value="0" ${!state.settings.voice?"selected":""}>關閉</option></select></div>
+ <div class="field"><label>場地名稱（每行一個）</label><textarea id="setCourtNames" style="width:100%;min-height:90px;padding:8px;border-radius:8px;border:1px solid #bbb">${Array.from({length:state.settings.courts},(_,i)=>esc(state.settings.courtNames?.[i]||`第 ${String.fromCharCode(65+i)} 場地`)).join("\n")}</textarea></div>
  <div class="tools"><button class="tool" onclick="applySettings()">儲存設定</button><button class="tool danger" onclick="closeModal()">關閉</button></div>
  <button class="bigBtn" style="background:#d64545" onclick="resetSystem()">⚠️ 重設所有資料</button>`;
  m.classList.add("show");
