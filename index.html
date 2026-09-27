@@ -199,6 +199,18 @@ html,body{overscroll-behavior:none}
 .courtEditBtn{border:0;background:rgba(255,255,255,.92);border-radius:7px;padding:2px 5px;font-size:11px;cursor:pointer}
 @media(max-width:899px){.emptyPlayerSlot{border-width:1px;border-radius:4px;font-size:9px}.emptyPlayerSlot small{font-size:5px}.courtEditBtn{font-size:7px;padding:1px 3px}}
 </style>
+<style id="queue-only-layout">
+.dashboard{display:block!important;min-height:0}
+.queuePanel{height:100%;min-height:0}
+@media (min-width:900px) and (max-width:1500px) and (orientation:landscape){
+  .dashboard{display:block!important}
+  .queuePanel{height:100%}
+}
+@media (max-width:899px) and (orientation:landscape){
+  .dashboard{display:block!important}
+  .queuePanel{height:100%}
+}
+</style>
 </head>
 <body>
 <header class="header">
@@ -285,7 +297,7 @@ function makeCourtElement(group,i,candidate){
  d.className=candidate?"court candidateCourt":"court";
  d.dataset.court=candidate?"c"+i:i;
  d.dataset.candidate=candidate?"1":"0";
- d.ondragover=allowDrop;d.ondragenter=courtDragEnter;d.ondragleave=courtDragLeave;d.ondrop=dropOnCourt;d.onclick=selectedCourtClick;
+ d.onclick=selectedCourtClick;
  d.innerHTML=`<div class="courtTitle">${candidate?"🟡 候補區 "+(i+1):`🏸 ${esc(courtLabel(i))} <button class="courtEditBtn" onclick="event.stopPropagation();editCourtName(${i})" title="修改場地名稱">✏️</button>`}</div><div class="courtGrid"></div><div class="courtFoot">${candidate?`<button class="speak" title="播報" onclick="event.stopPropagation();speakCandidate(${i})">🔊</button><button class="down" onclick="event.stopPropagation();finishCandidate(${i})">↩️ 回等候區</button>`:`<button class="speak" title="播報" onclick="event.stopPropagation();speakCourt(${i})">🔊</button><button class="down" onclick="event.stopPropagation();finishCourt(${i})">🏸 下場</button>`}</div>`;
  let grid=d.querySelector(".courtGrid");
  (group||[]).forEach(id=>{let p=byId(id);if(p)grid.insertAdjacentHTML("beforeend",playerHTML(p))});
@@ -305,13 +317,13 @@ function renderCourts(){
  wrap.appendChild(grid);el.appendChild(wrap);
 }
 function playerHTML(p){
- return `<div class="player dragPlayer ${p.cls}" draggable="false" data-player-id="${p.id}" ondragstart="dragPlayerStart(event,${JSON.stringify(p.id)})" onpointerdown="startPointerDrag(event,${JSON.stringify(p.id)})" ondragend="dragEnd(event)"><div class="avatar">${p.avatar}</div><div class="pname">${esc(p.name)}</div></div>`
+ return `<div class="player dragPlayer ${p.cls}" data-player-id="${p.id}" onpointerdown="startPointerDrag(event,${JSON.stringify(p.id)})"><div class="avatar">${p.avatar}</div><div class="pname">${esc(p.name)}</div></div>`
 }
 function renderQueue(){
  let el=document.getElementById("queue");el.innerHTML="";
  queuePlayers().forEach((p,i)=>el.insertAdjacentHTML("beforeend",
- `<div class="qitem" draggable="false" data-player-id="${esc(String(p.id))}" data-queue-index="${state.queue.findIndex(x=>String(x)===String(p.id))}" ondragstart="queueDragStartById(event,${JSON.stringify(String(p.id))})" onpointerdown="startPointerDrag(event,${JSON.stringify(String(p.id))})" ondragover="queueDragOver(event)" ondragenter="queueDragEnter(event)" ondragleave="queueDragLeave(event)" ondrop="dropOnQueueByElement(event)" ondragend="dragEnd(event)"><div class="avatar">${p.avatar}</div><div class="qname">${esc(p.name)}</div></div>`));
- el.insertAdjacentHTML("beforeend",`<div class="dropHint" ondragover="allowDrop(event)" ondrop="dropToQueueEnd(event)">⬇️ 拖到這裡，放到休息區最後</div>`);
+ `<div class="qitem" data-player-id="${esc(String(p.id))}" data-queue-index="${state.queue.findIndex(x=>String(x)===String(p.id))}" onpointerdown="startPointerDrag(event,${JSON.stringify(String(p.id))})"><div class="avatar">${p.avatar}</div><div class="qname">${esc(p.name)}</div></div>`));
+ el.insertAdjacentHTML("beforeend",`<div class="dropHint">⬇️ 拖到這裡，放到休息區最後</div>`);
 }
 
 let dragData=null, pointerDrag=null, selectedPlayerId=null;
@@ -332,17 +344,15 @@ function clearDropTargets(){
 }
 function beginPointerMove(e,data){
  if(e.button!==undefined && e.button!==0)return;
+ if(pointerDrag)return; // 已有一個手指/滑鼠正在操作，忽略第二個 pointer
  e.preventDefault();
  pointerDrag={...data,startX:e.clientX,startY:e.clientY,moved:false,pointerId:e.pointerId};
  document.addEventListener("pointermove",pointerMove,{passive:false});
- document.addEventListener("pointerup",pointerUp,{once:true});
- document.addEventListener("pointercancel",pointerCancel,{once:true});
+ document.addEventListener("pointerup",pointerUp);
+ document.addEventListener("pointercancel",pointerCancel);
 }
 function startPointerDrag(e,id){beginPointerMove(e,{type:"player",id:String(id)})}
-function startPointerQueueDrag(e,index){
- let id=state.queue[index];
- if(id!==undefined)beginPointerMove(e,{type:"player",id:String(id)});
-}
+
 function pointerMove(e){
  if(!pointerDrag || (pointerDrag.pointerId!=null && e.pointerId!==pointerDrag.pointerId))return;
  e.preventDefault();
@@ -368,15 +378,18 @@ function pointerMove(e){
    let candidate=court.dataset.candidate==="1";
    let i=candidate?+court.dataset.court.slice(1):+court.dataset.court;
    let g=candidate?state.candidateCourts[i]:state.courts[i];
-   if((g||[]).length<state.settings.perGame || (g||[]).includes(pointerDrag.id))court.classList.add("dragover");
+   if((g||[]).length<state.settings.perGame || (g||[]).some(x=>String(x)===String(pointerDrag.id)))court.classList.add("dragover");
  }else if(queue)queue.classList.add("queue-drop-active");
 }
 function finishPointerGesture(){
  document.getElementById("touchGhost")?.remove();
  clearDropTargets();
- document.querySelectorAll(".dragging").forEach(x=>x.classList.remove("dragging"));
- dragData=null;pointerDrag=null;
+ document.querySelectorAll(".dragging,.dragover,.queue-drop-active").forEach(x=>x.classList.remove("dragging","dragover","queue-drop-active"));
+ dragData=null;
+ pointerDrag=null;
  document.removeEventListener("pointermove",pointerMove);
+ document.removeEventListener("pointerup",pointerUp);
+ document.removeEventListener("pointercancel",pointerCancel);
 }
 function pointerUp(e){
  if(!pointerDrag || (pointerDrag.pointerId!=null && e.pointerId!==pointerDrag.pointerId))return;
@@ -402,30 +415,20 @@ function pointerUp(e){
  setTimeout(()=>window.refreshTapMoveUI?.(),0);
 }
 function pointerCancel(){finishPointerGesture();setTimeout(()=>window.refreshTapMoveUI?.(),0)}
+window.addEventListener("pagehide",()=>{if(pointerDrag)finishPointerGesture()});
+window.addEventListener("blur",()=>{if(pointerDrag)finishPointerGesture()});
 function clearHoverDrop(){document.querySelectorAll(".court.dragover").forEach(x=>x.classList.remove("dragover"));document.getElementById("queue")?.classList.remove("queue-drop-active")}
-function dragPlayerStart(e,id){dragData={type:"player",id:String(id)};e.dataTransfer.effectAllowed="move";e.dataTransfer.setData("text/plain",String(id));e.currentTarget.classList.add("dragging");markDropTargets()}
-function queueDragStart(e,index){let id=state.queue[index];if(id===undefined)return;dragData={type:"player",id:String(id)};e.dataTransfer.effectAllowed="move";e.dataTransfer.setData("text/plain",String(id));e.currentTarget.classList.add("dragging");markDropTargets()}
-function queueDragStartById(e,id){
- id=String(id);dragData={type:"player",id};
- e.dataTransfer.effectAllowed="move";
- e.dataTransfer.setData("text/plain",id);
- e.currentTarget.classList.add("dragging");
- markDropTargets();
-}
-function dropOnQueueByElement(e){
- let el=e.currentTarget;
- let targetId=String(el.dataset.playerId||"");
- let index=state.queue.findIndex(x=>String(x)===targetId);
- if(index<0)index=state.queue.length;
- dropOnQueue(e,index);
-}
-function allowDrop(e){e.preventDefault();e.dataTransfer.dropEffect="move"}
-function queueDragOver(e){e.preventDefault();e.dataTransfer.dropEffect="move"}
-function queueDragEnter(e){e.preventDefault();e.currentTarget.classList.add("dragover")}
-function queueDragLeave(e){e.currentTarget.classList.remove("dragover")}
-function courtDragEnter(e){e.preventDefault();e.currentTarget.classList.add("dragover")}
-function courtDragLeave(e){if(!e.currentTarget.contains(e.relatedTarget))e.currentTarget.classList.remove("dragover")}
-function dragEnd(){document.querySelectorAll(".dragging,.dragover").forEach(x=>x.classList.remove("dragging","dragover"));clearDropTargets();dragData=null}
+
+
+
+
+
+
+
+
+
+
+
 function removeFromAllLocations(id){
  id=String(id);
  state.queue=state.queue.filter(x=>String(x)!==id);
@@ -437,7 +440,8 @@ function dropOnCourt(e){
  ce.classList.remove("dragover");if(!dragData)return;
  let id=dragData.id;if(id===undefined)return;
  let group=candidate?state.candidateCourts[i]:state.courts[i];
- if((group||[]).length>=state.settings.perGame&&!(group||[]).includes(id)){alert(`${candidate?"候補場地 "+(i+1):"場地 "+String.fromCharCode(65+i)} 已經有 ${state.settings.perGame} 人。`);return}
+ if((group||[]).some(x=>String(x)===String(id))){clearDropTargets();dragData=null;selectedPlayerId=null;render();return}
+ if((group||[]).length>=state.settings.perGame&&!(group||[]).some(x=>String(x)===String(id))){alert(`${candidate?"候補場地 "+(i+1):"場地 "+String.fromCharCode(65+i)} 已經有 ${state.settings.perGame} 人。`);return}
  removeFromAllLocations(id);
  if(candidate){if(!state.candidateCourts[i])state.candidateCourts[i]=[];state.candidateCourts[i].push(id)}
  else{if(!state.courts[i])state.courts[i]=[];state.courts[i].push(id)}
@@ -459,7 +463,7 @@ function dropToQueueEnd(e){
 function selectedCourtClick(e){
  if(!selectedPlayerId)return;
  let ce=e.currentTarget,candidate=ce.dataset.candidate==="1",i=candidate?+ce.dataset.court.slice(1):+ce.dataset.court,group=candidate?state.candidateCourts[i]:state.courts[i];
- if((group||[]).includes(selectedPlayerId)){selectedPlayerId=null;document.querySelectorAll(".selectedPlayer").forEach(x=>x.classList.remove("selectedPlayer"));window.refreshTapMoveUI?.();return}
+ if((group||[]).some(x=>String(x)===String(selectedPlayerId))){selectedPlayerId=null;document.querySelectorAll(".selectedPlayer").forEach(x=>x.classList.remove("selectedPlayer"));window.refreshTapMoveUI?.();return}
  if((group||[]).length>=state.settings.perGame){alert(`${candidate?"候補場地 "+(i+1):courtLabel(i)} 已滿 ${state.settings.perGame} 人`);return}
  removeFromAllLocations(selectedPlayerId);
  if(candidate){if(!state.candidateCourts[i])state.candidateCourts[i]=[];state.candidateCourts[i].push(selectedPlayerId)}
@@ -647,7 +651,7 @@ state.settings.random=false;
     if(selectedPlayerId==null)return;
     const id=selectedPlayerId;
     removeFromAllLocations(id);
-    if(!state.queue.includes(id))state.queue.push(id);
+    if(!state.queue.some(x=>String(x)===String(id)))state.queue.push(String(id));
     selectedPlayerId=null;
     save();
     setTimeout(refreshTapMoveUI,0);
@@ -662,11 +666,6 @@ state.settings.random=false;
     tapMoveQueue();
   },true);
 
-  // 原程式 pointerUp 在未拖曳時會選取球友；同步顯示操作提示。
-  document.addEventListener("pointerup",function(){
-    setTimeout(refreshTapMoveUI,0);
-  });
-
   // 場地點擊完成移動後同步清掉提示。
   document.addEventListener("click",function(e){
     if(e.target.closest?.(".court")) setTimeout(refreshTapMoveUI,0);
@@ -679,15 +678,3 @@ state.settings.random=false;
 
 </body>
 </html>
-<style id="queue-only-layout">
-.dashboard{display:block!important;min-height:0}
-.queuePanel{height:100%;min-height:0}
-@media (min-width:900px) and (max-width:1500px) and (orientation:landscape){
-  .dashboard{display:block!important}
-  .queuePanel{height:100%}
-}
-@media (max-width:899px) and (orientation:landscape){
-  .dashboard{display:block!important}
-  .queuePanel{height:100%}
-}
-</style>
