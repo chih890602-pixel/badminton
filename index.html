@@ -211,6 +211,11 @@ html,body{overscroll-behavior:none}
   .queuePanel{height:100%}
 }
 </style>
+<style id="pointer-final-fix">
+.player.dragPlayer,.qitem{pointer-events:auto!important;touch-action:none!important;-webkit-user-select:none!important;user-select:none!important}
+.player.dragPlayer *,.qitem *{pointer-events:none}
+.court,.courtGrid,.queuePanel,#queue{pointer-events:auto}
+</style>
 </head>
 <body>
 <header class="header">
@@ -317,16 +322,16 @@ function renderCourts(){
  wrap.appendChild(grid);el.appendChild(wrap);
 }
 function playerHTML(p){
- return `<div class="player dragPlayer ${p.cls}" data-player-id="${p.id}" onpointerdown="startPointerDrag(event,${JSON.stringify(p.id)})"><div class="avatar">${p.avatar}</div><div class="pname">${esc(p.name)}</div></div>`
+ return `<div class="player dragPlayer ${p.cls}" data-player-id="${p.id}" onpointerdown="startPointerDrag(event,${JSON.stringify(p.id)})" onclick="event.stopPropagation()"><div class="avatar">${p.avatar}</div><div class="pname">${esc(p.name)}</div></div>`
 }
 function renderQueue(){
  let el=document.getElementById("queue");el.innerHTML="";
  queuePlayers().forEach((p,i)=>el.insertAdjacentHTML("beforeend",
- `<div class="qitem" data-player-id="${esc(String(p.id))}" data-queue-index="${state.queue.findIndex(x=>String(x)===String(p.id))}" onpointerdown="startPointerDrag(event,${JSON.stringify(String(p.id))})"><div class="avatar">${p.avatar}</div><div class="qname">${esc(p.name)}</div></div>`));
+ `<div class="qitem" data-player-id="${esc(String(p.id))}" data-queue-index="${state.queue.findIndex(x=>String(x)===String(p.id))}" onpointerdown="startPointerDrag(event,${JSON.stringify(String(p.id))})" onclick="event.stopPropagation()"><div class="avatar">${p.avatar}</div><div class="qname">${esc(p.name)}</div></div>`));
  el.insertAdjacentHTML("beforeend",`<div class="dropHint">⬇️ 拖到這裡，放到休息區最後</div>`);
 }
 
-let dragData=null, pointerDrag=null, selectedPlayerId=null;
+let dragData=null, pointerDrag=null, selectedPlayerId=null, suppressDestinationClickUntil=0;
 function markDropTargets(){
  if(!dragData)return;
  document.querySelectorAll(".court").forEach(c=>{
@@ -344,9 +349,8 @@ function clearDropTargets(){
 }
 function beginPointerMove(e,data){
  if(e.button!==undefined && e.button!==0)return;
- if(pointerDrag)return; // 已有一個手指/滑鼠正在操作，忽略第二個 pointer
- e.preventDefault();
- pointerDrag={...data,startX:e.clientX,startY:e.clientY,moved:false,pointerId:e.pointerId};
+ if(pointerDrag)return;
+ pointerDrag={...data,startX:e.clientX,startY:e.clientY,moved:false,pointerId:e.pointerId,sourceEl:e.currentTarget};
  document.addEventListener("pointermove",pointerMove,{passive:false});
  document.addEventListener("pointerup",pointerUp);
  document.addEventListener("pointercancel",pointerCancel);
@@ -355,14 +359,14 @@ function startPointerDrag(e,id){beginPointerMove(e,{type:"player",id:String(id)}
 
 function pointerMove(e){
  if(!pointerDrag || (pointerDrag.pointerId!=null && e.pointerId!==pointerDrag.pointerId))return;
- e.preventDefault();
  let dx=e.clientX-pointerDrag.startX,dy=e.clientY-pointerDrag.startY;
- if(!pointerDrag.moved&&Math.hypot(dx,dy)<7)return;
+ if(!pointerDrag.moved&&Math.hypot(dx,dy)<10)return;
+ e.preventDefault();
  if(!pointerDrag.moved){
    pointerDrag.moved=true;
    dragData={type:"player",id:pointerDrag.id};
    markDropTargets();
-   let source=document.querySelector(`[data-player-id="${CSS.escape(String(pointerDrag.id))}"]`);
+   let source=pointerDrag.sourceEl || document.querySelector(`[data-player-id="${CSS.escape(String(pointerDrag.id))}"]`);
    if(source){
      source.classList.add("dragging");
      let ghost=source.cloneNode(true);ghost.classList.add("touchGhost");ghost.id="touchGhost";
@@ -371,7 +375,8 @@ function pointerMove(e){
  }
  let ghost=document.getElementById("touchGhost");
  if(ghost){ghost.style.left=e.clientX+"px";ghost.style.top=e.clientY+"px"}
- let target=document.elementFromPoint(e.clientX,e.clientY);
+ let stack=document.elementsFromPoint(e.clientX,e.clientY);
+ let target=stack.find(x=>x.closest?.(".court")||x.closest?.("#queue"))||stack[0];
  clearHoverDrop();
  let court=target?.closest?.(".court"),queue=target?.closest?.("#queue");
  if(court){
@@ -395,8 +400,11 @@ function pointerUp(e){
  if(!pointerDrag || (pointerDrag.pointerId!=null && e.pointerId!==pointerDrag.pointerId))return;
  let pd={...pointerDrag};
  if(pd.moved){
-   let target=document.elementFromPoint(e.clientX,e.clientY);
-   let court=target?.closest?.(".court"),qitem=target?.closest?.(".qitem"),queue=target?.closest?.("#queue");
+   let stack=document.elementsFromPoint(e.clientX,e.clientY);
+   let courtEl=stack.find(x=>x.closest?.(".court"));
+   let qitemEl=stack.find(x=>x.closest?.(".qitem"));
+   let queueEl=stack.find(x=>x.closest?.("#queue"));
+   let court=courtEl?.closest?.(".court"),qitem=qitemEl?.closest?.(".qitem"),queue=queueEl?.closest?.("#queue");
    dragData={type:"player",id:pd.id};
    if(court)dropOnCourt({preventDefault(){},currentTarget:court});
    else if(qitem){
@@ -407,8 +415,9 @@ function pointerUp(e){
    else if(queue)dropToQueueEnd({preventDefault(){},currentTarget:queue});
  }else{
    selectedPlayerId=pd.id;
+   suppressDestinationClickUntil=Date.now()+250;
    document.querySelectorAll(".selectedPlayer").forEach(x=>x.classList.remove("selectedPlayer"));
-   let el=document.querySelector(`[data-player-id="${CSS.escape(String(pd.id))}"]`);
+   let el=pd.sourceEl || document.querySelector(`[data-player-id="${CSS.escape(String(pd.id))}"]`);
    el?.classList.add("selectedPlayer");
  }
  finishPointerGesture();
@@ -461,6 +470,8 @@ function dropToQueueEnd(e){
  state.queue.push(id);clearDropTargets();dragData=null;selectedPlayerId=null;save();
 }
 function selectedCourtClick(e){
+ if(e.target.closest("button"))return;
+ if(Date.now()<suppressDestinationClickUntil)return;
  if(!selectedPlayerId)return;
  let ce=e.currentTarget,candidate=ce.dataset.candidate==="1",i=candidate?+ce.dataset.court.slice(1):+ce.dataset.court,group=candidate?state.candidateCourts[i]:state.courts[i];
  if((group||[]).some(x=>String(x)===String(selectedPlayerId))){selectedPlayerId=null;document.querySelectorAll(".selectedPlayer").forEach(x=>x.classList.remove("selectedPlayer"));window.refreshTapMoveUI?.();return}
@@ -660,6 +671,7 @@ state.settings.random=false;
   // 讓「休息區整塊」也可作為點選目的地。
   document.addEventListener("click",function(e){
     if(selectedPlayerId==null)return;
+    if(typeof suppressDestinationClickUntil!=="undefined" && Date.now()<suppressDestinationClickUntil)return;
     const qp=e.target.closest?.(".queuePanel");
     if(!qp || e.target.closest(".qitem"))return;
     e.preventDefault();
