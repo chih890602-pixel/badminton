@@ -19,7 +19,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}
 .court{background:#0b9c63;border:7px solid #d8fff0;border-radius:17px;padding:0 10px 10px;box-shadow:0 6px 14px #0002;position:relative;min-width:0}
 .courtTitle{background:#075ea4;color:#fff;border-radius:0 0 12px 12px;padding:7px 15px;font-size:20px;font-weight:900;display:inline-flex;gap:7px}
 .courtGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 5px 8px;background:repeating-linear-gradient(90deg,#10a66c 0,#10a66c 48%,#07925c 48%,#07925c 50%,#10a66c 50%);border:2px solid #d4ffe9;min-height:170px}
-.player{touch-action:none;-webkit-user-select:none;user-select:none;cursor:grab;}border:2px solid #fff;border-radius:13px;min-height:67px;padding:7px;display:flex;align-items:center;gap:8px;background:#fff;box-shadow:0 2px 6px #0001}
+.player{touch-action:none;-webkit-user-select:none;user-select:none;cursor:grab;border:2px solid #fff;border-radius:13px;min-height:67px;padding:7px;display:flex;align-items:center;gap:8px;background:#fff;box-shadow:0 2px 6px #0001}
 .player.male{background:#dff3ff}.player.female{background:#ffe4ef}.player.green{background:#dcf8e8}.player.yellow{background:#fff7cc}
 .avatar{width:43px;height:43px;border-radius:50%;display:grid;place-items:center;font-size:25px;background:#fff;flex:none}
 .pname{font-weight:900;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -29,7 +29,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}
 .candidateCourts{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .candidateCourt{background:#b08b00;border-color:#fff7c7}.candidateCourt .courtTitle{background:#8d7000}
 .candidateCourt .courtGrid{background:repeating-linear-gradient(90deg,#c9a500 0,#c9a500 48%,#ae8e00 48%,#ae8e00 50%,#c9a500 50%);min-height:150px}
-.dashboard{display:grid;grid-template-columns:340px 1fr 330px;gap:14px;margin-top:16px}
+.dashboard{display:grid;grid-template-columns:32% 68%;gap:14px;margin-top:16px}
 .panel{background:#ffffffdc;border:1px solid #cce8f5;border-radius:18px;padding:15px;box-shadow:0 5px 16px #0001}
 .panel h2{margin:0 0 12px;color:#075a94;font-size:22px}
 .callBox{background:#fff8d6;border:2px solid #ffc400;border-radius:15px;padding:16px;text-align:center}.callLabel{display:inline-block;background:#ff8c19;color:#fff;padding:8px 22px;border-radius:20px;font-weight:900}.callNames{font-size:27px;line-height:1.35;font-weight:900;color:#073f75;margin:12px 0 4px}.callCourt{font-size:20px;font-weight:900}
@@ -81,7 +81,7 @@ html,body{width:100%;height:100%;overflow:hidden}
 .candidateSection{grid-column:1/-1;min-height:0;margin-top:0;padding:4px;border-radius:9px;overflow:hidden}
 .candidateTitle{font-size:12px;margin:0 2px 3px;height:16px;overflow:hidden;white-space:nowrap}.candidateTitle small{font-size:9px}
 .candidateCourts{height:calc(100% - 19px);grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.candidateCourt .courtGrid{min-height:0}
-.dashboard{min-height:0;margin-top:0;display:grid;grid-template-columns:23% 54% 23%;gap:6px;overflow:hidden}
+.dashboard{min-height:0;margin-top:0;display:grid;grid-template-columns:30% 70%;gap:6px;overflow:hidden}
 .panel{min-height:0;padding:6px;border-radius:9px;overflow:hidden}.panel h2{margin:0 0 4px;font-size:13px}
 .callBox{padding:5px;border-radius:8px}.callLabel{padding:2px 8px;font-size:9px}.callNames{font-size:14px;margin:3px 0 1px;line-height:1.1}.callCourt{font-size:11px}
 .bigBtn{padding:5px;margin-top:4px;font-size:11px;border-radius:14px}.nextBox{margin-top:4px;padding:4px;font-size:10px}.tools{margin-top:4px;gap:3px}.tool{padding:5px;font-size:9px;border-radius:7px}
@@ -169,7 +169,7 @@ html,body{overscroll-behavior:none}
   .candidateSection{grid-column:1/-1;min-height:0;margin:0;padding:2px;border-radius:6px;overflow:hidden}
   .candidateTitle{font-size:8px;margin:0 1px 2px;height:11px;overflow:hidden;white-space:nowrap}.candidateTitle small{display:none}
   .candidateCourts{height:calc(100% - 13px);grid-template-columns:repeat(3,minmax(0,1fr));gap:3px}
-  .dashboard{min-height:0;margin:0;display:grid;grid-template-columns:22% 56% 22%;gap:3px;overflow:hidden}
+  .dashboard{min-height:0;margin:0;display:grid;grid-template-columns:28% 72%;gap:3px;overflow:hidden}
   .panel{min-height:0;padding:3px;border-radius:6px;overflow:hidden}.panel h2{margin:0 0 2px;font-size:8px}
   .callBox{padding:2px;border-radius:5px}.callLabel{padding:1px 4px;font-size:6px}.callNames{font-size:9px;margin:2px 0 0;line-height:1}.callCourt{font-size:7px}
   .bigBtn{padding:2px;margin-top:2px;font-size:7px;border-radius:8px}.nextBox{margin-top:2px;padding:2px;font-size:6px}.tools{margin-top:2px;gap:2px}.tool{padding:2px;font-size:6px;border-radius:4px}
@@ -192,51 +192,12 @@ html,body{overscroll-behavior:none}
 }
 </style>
 
-<style id="iphone-full-nocloud">
-@media(max-width:699px) and (orientation:portrait){
-body:before{display:none!important;content:none!important}html,body{height:100%;overflow:hidden!important}
-.header{position:relative!important;height:40px!important;min-height:40px!important;padding:3px 5px!important;flex-wrap:nowrap!important}
-.logo{font-size:12px!important}.logo span{font-size:17px!important}.tag{display:none!important}
-.headerStats{margin-left:auto!important;width:auto!important;gap:2px!important;overflow:visible!important}.pill{font-size:7px!important;padding:3px!important}
-.layout{display:block!important;height:calc(100dvh - 40px)!important;min-height:0!important;overflow:hidden!important}.sidebar{display:none!important}
-.main{padding:3px!important;height:100%!important;overflow:hidden!important;display:grid!important;grid-template-rows:61% 39%!important;gap:3px!important}
-.courts{min-height:0!important;display:grid!important;grid-template-columns:repeat(2,1fr)!important;grid-template-rows:35% 35% 30%!important;gap:3px!important}
-.court{border-width:2px!important;border-radius:5px!important;padding:0 2px 2px!important;min-height:0!important;overflow:hidden!important}
-.courtTitle{font-size:8px!important;padding:1px 3px!important}.courtGrid{gap:1px!important;padding:2px 1px!important;min-height:0!important;height:calc(100% - 27px)!important}
-.player{min-height:0!important;height:100%!important;padding:1px 2px!important;gap:1px!important;border-radius:3px!important;border-width:1px!important}
-.avatar{width:15px!important;height:15px!important;font-size:9px!important}.pname{font-size:7px!important}
-.courtFoot{height:17px!important;gap:1px!important;margin-top:1px!important}.speak{width:17px!important;height:17px!important;font-size:8px!important}.down{font-size:6px!important}
-.candidateSection{grid-column:1/-1!important;min-height:0!important;margin:0!important;padding:2px!important;overflow:hidden!important}
-.candidateTitle{font-size:8px!important;height:10px!important;margin:0 1px 1px!important;overflow:hidden!important}.candidateTitle small{display:none!important}
-.candidateCourts{height:calc(100% - 11px)!important;grid-template-columns:repeat(3,1fr)!important;gap:2px!important}
-.dashboard{min-height:0!important;margin:0!important;display:grid!important;grid-template-columns:28% 72%!important;gap:3px!important;overflow:hidden!important}
-.dashboard>.panel:last-child{display:none!important}.panel{min-height:0!important;padding:3px!important;border-radius:5px!important;overflow:hidden!important}.panel h2{font-size:8px!important;margin:0 0 2px!important}
-.callBox{padding:2px!important}.callLabel{font-size:6px!important;padding:1px 3px!important}.callNames{font-size:9px!important;margin:2px 0!important}.callCourt{font-size:7px!important}
-.bigBtn{font-size:7px!important;padding:3px!important;margin-top:2px!important}.nextBox{font-size:6px!important;padding:2px!important;margin-top:2px!important}
-.tools{margin-top:2px!important;gap:1px!important}.tool{font-size:6px!important;padding:2px!important}
-.queuePanel{display:flex!important;flex-direction:column!important}.queuePanel>div:nth-of-type(1){font-size:7px!important;margin-bottom:1px!important}
-.queue{flex:1!important;min-height:0!important;max-height:none!important;overflow:auto!important;grid-template-columns:repeat(3,1fr)!important;gap:2px!important;padding:0!important}
-.qitem{min-height:23px!important;padding:1px 2px!important;gap:1px!important}.qitem .avatar{width:14px!important;height:14px!important;font-size:8px!important}.qname{font-size:7px!important}
-.dropHint{font-size:6px!important;padding:2px!important}.tapMoveBar{font-size:7px!important;padding:3px!important;gap:2px!important;bottom:2px!important}.tapMoveBar button{font-size:7px!important;padding:3px!important}
-}
-</style>
-<style id="four-slot-and-court-edit">
+<style id="bugfix-clean-ui">
 .courtGrid{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr))}
-.emptyPlayerSlot{
- display:flex;flex-direction:column;align-items:center;justify-content:center;
- min-height:0;border:2px dashed rgba(255,255,255,.65);border-radius:8px;
- color:#fff;background:rgba(255,255,255,.08);font-weight:900;cursor:pointer;
-}
+.emptyPlayerSlot{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:0;border:2px dashed rgba(255,255,255,.65);border-radius:8px;color:#fff;background:rgba(255,255,255,.08);font-weight:900;cursor:pointer}
 .emptyPlayerSlot small{font-size:9px;opacity:.9}
-.courtEditBtn{
- border:0;background:rgba(255,255,255,.92);border-radius:8px;padding:2px 5px;
- font-size:11px;cursor:pointer;vertical-align:middle;
-}
-@media(max-width:899px){
- .emptyPlayerSlot{border-width:1px;border-radius:4px;font-size:9px}
- .emptyPlayerSlot small{font-size:5px}
- .courtEditBtn{font-size:7px;padding:1px 3px;border-radius:4px}
-}
+.courtEditBtn{border:0;background:rgba(255,255,255,.92);border-radius:7px;padding:2px 5px;font-size:11px;cursor:pointer}
+@media(max-width:899px){.emptyPlayerSlot{border-width:1px;border-radius:4px;font-size:9px}.emptyPlayerSlot small{font-size:5px}.courtEditBtn{font-size:7px;padding:1px 3px}}
 </style>
 </head>
 <body>
@@ -245,7 +206,6 @@ body:before{display:none!important;content:none!important}html,body{height:100%;
 <div class="headerStats">
 <div class="pill">👥 場上 <b id="onCount">0</b> 人</div>
 <div class="pill">😴 休息 <b id="waitCount">0</b> 人</div>
-<div class="pill">📋 已叫 <b id="calledCount">0</b> 組</div>
 </div>
 </header>
 <div class="layout">
@@ -253,7 +213,7 @@ body:before{display:none!important;content:none!important}html,body{height:100%;
 <div class="nav active" onclick="scrollTo(0,0)"><b>⌂</b><small>首頁</small></div>
 <div class="nav" onclick="openManage()"><b>⚙</b><small>球友</small></div>
 <div class="nav" onclick="nextRound()"><b>⟳</b><small>下一組</small></div>
-<div class="nav" onclick="openSettings()"><b>☷</b><small>設定<div class="courtNameEditor"><h3>場地名稱</h3><div id="courtNameSettings"></div></div></small></div>
+<div class="nav" onclick="openSettings()"><b>☷</b><small>設定</small></div>
 <div style="margin-top:auto;font-size:38px">🏸</div>
 </aside>
 <main class="main">
@@ -275,9 +235,6 @@ body:before{display:none!important;content:none!important}html,body{height:100%;
 <h2>😴 休息區 <small style="font-size:13px">（可自由拖曳）</small></h2>
 <div style="margin-bottom:10px;font-weight:900;color:#0874ad">目前休息：<span id="waitCount2">0</span> 人　<span style="font-size:12px;color:#789">可直接拖曳球友到候補區或上場區</span></div>
 <div id="queue" class="queue"></div>
-</div>
-<div class="panel">
-<h2>📋 已叫紀錄</h2><div id="history" class="history"></div>
 </div>
 </section>
 </main></div>
@@ -314,12 +271,10 @@ function allGroups(){return [...state.courts,...state.candidateCourts]}
 function queuePlayers(){return state.queue.map(byId).filter(Boolean)}
 function courtLabel(i){return state.settings.courtNames?.[i]?.trim() || `第 ${String.fromCharCode(65+i)} 場地`;}
 function render(){
-  renderCourtNameSettings();
  document.getElementById("onCount").textContent=allGroups().reduce((n,c)=>n+(c?.length||0),0);
  document.getElementById("waitCount").textContent=state.queue.length;
  document.getElementById("waitCount2").textContent=state.queue.length;
- document.getElementById("calledCount").textContent=state.history.length;
- renderCourts();renderQueue();renderHistory();
+ renderCourts();renderQueue();
  let last=state.last;
  document.getElementById("callNames").textContent=last?last.players.map(p=>p.name).join("、"):"—";
  document.getElementById("callCourt").textContent=last?`${courtLabel(last.court)}`:"等待開始";
@@ -335,10 +290,9 @@ function makeCourtElement(group,i,candidate){
  d.innerHTML=`<div class="courtTitle">${candidate?"🟡 候補區 "+(i+1):`🏸 ${esc(courtLabel(i))} <button class="courtEditBtn" onclick="event.stopPropagation();editCourtName(${i})" title="修改場地名稱">✏️</button>`}</div><div class="courtGrid"></div><div class="courtFoot">${candidate?`<button class="speak" title="播報" onclick="event.stopPropagation();speakCandidate(${i})">🔊</button><button class="down" onclick="event.stopPropagation();finishCandidate(${i})">↩️ 回等候區</button>`:`<button class="speak" title="播報" onclick="event.stopPropagation();speakCourt(${i})">🔊</button><button class="down" onclick="event.stopPropagation();finishCourt(${i})">🏸 下場</button>`}</div>`;
  let grid=d.querySelector(".courtGrid");
  (group||[]).forEach(id=>{let p=byId(id);if(p)grid.insertAdjacentHTML("beforeend",playerHTML(p))});
- // 永遠保留到每場 4 個可點選位置，避免已有 2 人後點不到空白區。
  let capacity=state.settings.perGame||4;
  for(let s=(group||[]).length;s<capacity;s++){
-   grid.insertAdjacentHTML("beforeend",`<div class="emptyPlayerSlot" title="先點球友，再點這裡">＋<small>點選放入</small></div>`);
+   grid.insertAdjacentHTML("beforeend",`<div class="emptyPlayerSlot">＋<small>點選放入</small></div>`);
  }
  return d;
 }
@@ -359,12 +313,6 @@ function renderQueue(){
  queuePlayers().forEach((p,i)=>el.insertAdjacentHTML("beforeend",
  `<div class="qitem" draggable="false" data-queue-index="${i}" ondragstart="queueDragStart(event,${i})" onpointerdown="startPointerQueueDrag(event,${i})" ondragover="queueDragOver(event)" ondragenter="queueDragEnter(event)" ondragleave="queueDragLeave(event)" ondrop="dropOnQueue(event,${i})" ondragend="dragEnd(event)"><div class="avatar">${p.avatar}</div><div class="qname">${esc(p.name)}</div></div>`));
  el.insertAdjacentHTML("beforeend",`<div class="dropHint" ondragover="allowDrop(event)" ondrop="dropToQueueEnd(event)">⬇️ 拖到這裡，放到休息區最後</div>`);
-}
-function renderHistory(){
- let el=document.getElementById("history");el.innerHTML="";
- state.history.slice().reverse().forEach(h=>el.insertAdjacentHTML("beforeend",
- `<div class="hitem"><b>第 ${h.round} 組</b>　${courtLabel(h.court)}<br>${h.players.map(p=>esc(p.name)).join("、")}<br><small>${h.time}</small></div>`));
- if(!state.history.length)el.innerHTML="<div style='color:#789;text-align:center;padding:30px'>尚無叫號紀錄</div>";
 }
 
 let dragData=null, pointerDrag=null, selectedPlayerId=null;
@@ -514,13 +462,33 @@ function finishCourt(i){
   state.candidateCourts[1]=shift2;
   state.candidateCourts[2]=null;
   oldGroup.forEach(id=>{if(!state.queue.includes(id))state.queue.push(id)});
-  if(promote){state.last={round:state.history.length+1,court:i,players:promote.map(byId).filter(Boolean),time:new Date().toLocaleTimeString("zh-TW")};state.history.push(state.last);save();speakText(`請 ${promote.map(id=>byId(id)?.name).filter(Boolean).join("、")} 到${courtLabel(i)}`);}else save();
+  if(promote){state.last={court:i,players:promote.map(byId).filter(Boolean)};save();speakText(`請 ${promote.map(id=>byId(id)?.name).filter(Boolean).join("、")} 到${courtLabel(i)}`);}else save();
 }
 function finishCandidate(i){if(!state.candidateCourts[i])return;if(confirm(`確定把候補區 ${i+1} 的球友放回等候區嗎？`)){state.candidateCourts[i].forEach(id=>{if(!state.queue.includes(id))state.queue.push(id)});state.candidateCourts[i]=null;save()}}
 function speakCourt(i){let g=state.courts[i];if(g)speakText(`${courtLabel(i)}，目前是 ${g.map(id=>byId(id)?.name).filter(Boolean).join("、")}`)}
 function speakCandidate(i){let g=state.candidateCourts[i];if(g)speakText(`候補區 ${i+1}，目前是 ${g.map(id=>byId(id)?.name).filter(Boolean).join("、")}`)}
 function repeatCall(){if(state.last)speakText(`請 ${state.last.players.map(p=>p.name).join("、")} 到${courtLabel(state.last.court)}`)}
-function speakText(t){if(!state.settings.voice||!("speechSynthesis"in window))return;speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(t);u.lang="zh-TW";u.rate=.9;speechSynthesis.speak(u)}
+function getNaturalZhVoice(){
+ const voices=speechSynthesis.getVoices();
+ const zh=voices.filter(v=>/^zh[-_](TW|Hant)/i.test(v.lang)||/Taiwan|台灣|臺灣/i.test(v.name));
+ const preferred=["Mei-Jia","Meijia","美佳","Ting-Ting","婷婷","Sin-Ji","怡君"];
+ for(const key of preferred){
+   const found=zh.find(v=>v.name.toLowerCase().includes(key.toLowerCase()));
+   if(found)return found;
+ }
+ return zh.find(v=>v.localService)||zh[0]||voices.find(v=>/^zh/i.test(v.lang))||null;
+}
+function speakText(t){
+ if(!state.settings.voice||!("speechSynthesis"in window))return;
+ speechSynthesis.cancel();
+ let u=new SpeechSynthesisUtterance(t);
+ u.lang="zh-TW";
+ let v=getNaturalZhVoice();if(v)u.voice=v;
+ u.rate=.96;       // 接近一般人說話速度
+ u.pitch=1.03;     // 稍微柔和自然
+ u.volume=1;
+ speechSynthesis.speak(u);
+}
 function shuffleQueue(){state.queue.sort(()=>Math.random()-.5);save()}
 
 function openManage(){
@@ -556,7 +524,7 @@ function openSettings(){
  <div class="field"><label>每組人數</label><select id="setPer"><option value="2" ${state.settings.perGame==2?"selected":""}>2 人（單打）</option><option value="4" ${state.settings.perGame==4?"selected":""}>4 人（雙打）</option></select></div>
  <div class="field"><label>叫號模式</label><select id="setRandom"><option value="0" ${!state.settings.random?"selected":""}>依序</option><option value="1" ${state.settings.random?"selected":""}>隨機</option></select></div>
  <div class="field"><label>語音</label><select id="setVoice"><option value="1" ${state.settings.voice?"selected":""}>開啟</option><option value="0" ${!state.settings.voice?"selected":""}>關閉</option></select></div>
- <div class="field"><label>場地名稱（每行一個）</label><textarea id="setCourtNames" style="width:100%;min-height:90px;padding:8px;border-radius:8px;border:1px solid #bbb">${Array.from({length:state.settings.courts},(_,i)=>esc(state.settings.courtNames?.[i]||`第 ${String.fromCharCode(65+i)} 場地`)).join("\n")}</textarea></div>
+ <div class="field"><label>場地名稱（每行一個）</label><textarea id="setCourtNames" class="batch" style="min-height:90px">${Array.from({length:state.settings.courts},(_,i)=>esc(state.settings.courtNames?.[i]||`第 ${String.fromCharCode(65+i)} 場地`)).join("\n")}</textarea></div>
  <div class="tools"><button class="tool" onclick="applySettings()">儲存設定</button><button class="tool danger" onclick="closeModal()">關閉</button></div>
  <button class="bigBtn" style="background:#d64545" onclick="resetSystem()">⚠️ 重設所有資料</button>`;
  m.classList.add("show");
@@ -581,6 +549,10 @@ function resetSystem(){
 }
 function closeModal(){document.getElementById("modal").classList.remove("show")}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+if("speechSynthesis"in window){
+ speechSynthesis.getVoices();
+ speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices();
+}
 document.getElementById("modal").addEventListener("click",e=>{if(e.target.id==="modal")closeModal()});
 render();
 
@@ -593,28 +565,7 @@ renderCourtNameSettings();
 // 排點固定依目前休息區順序，不使用隨機。
 state.settings.random=false;
 
-function renderCourtNameSettings(){
-  const el=document.getElementById("courtNameSettings");
-  if(!el)return;
-  const n=Number(state.settings.courts)||4;
-  if(!Array.isArray(state.settings.courtNames)) state.settings.courtNames=[];
-  while(state.settings.courtNames.length<n) state.settings.courtNames.push(String.fromCharCode(65+state.settings.courtNames.length));
-  el.innerHTML="";
-  for(let i=0;i<n;i++){
-    const row=document.createElement("div");
-    row.className="courtNameRow";
-    row.innerHTML=`<label>${i+1}號場地</label><input type="text" value="${String(state.settings.courtNames[i]||"").replace(/"/g,"&quot;")}" placeholder="例如：A場、紅場、1號場">`;
-    const input=row.querySelector("input");
-    input.addEventListener("input",()=>{
-      state.settings.courtNames[i]=input.value.trim() || String.fromCharCode(65+i);
-      render();
-      save();
-    });
-    el.appendChild(row);
-  }
-}
 </script>
-<script>window.addEventListener('DOMContentLoaded',()=>{renderCourtNameSettings();});</script>
 <script id="tap-move-enhancement">
 (function(){
   function getSelectedPlayer(){
