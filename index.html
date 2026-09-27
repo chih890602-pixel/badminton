@@ -212,12 +212,15 @@ html,body{overscroll-behavior:none}
 }
 </style>
 
-<style id="click-only-mode">
-.player,.qitem{cursor:pointer!important;touch-action:manipulation!important;-webkit-user-select:none;user-select:none}
-.player *, .qitem *{pointer-events:none}
-.selectedPlayer{outline:4px solid #ff9800!important;outline-offset:-2px!important;box-shadow:0 0 0 3px rgba(255,152,0,.28)!important}
-.touchGhost,.dropTarget,.dragover,.queue-drop-active{display:none!important}
-.emptyPlayerSlot{cursor:pointer}
+
+<style id="simple-click-only">
+.player,.qitem{cursor:pointer!important;touch-action:manipulation!important;-webkit-user-select:none!important;user-select:none!important}
+.player *, .qitem *{pointer-events:none!important}
+.selectedPlayer{outline:4px solid #ff9800!important;outline-offset:-3px!important;box-shadow:0 0 0 3px rgba(255,152,0,.3)!important}
+.simpleSelectBar{position:fixed;left:50%;bottom:12px;transform:translateX(-50%);z-index:99999;display:none;align-items:center;gap:8px;background:#fff;border:2px solid #ff9800;border-radius:14px;padding:8px 10px;box-shadow:0 5px 22px #0004;font-weight:900;max-width:94vw}
+.simpleSelectBar.show{display:flex}
+.simpleSelectBar button{border:0;border-radius:9px;padding:8px 10px;font-weight:900;cursor:pointer;background:#eaf6ff}
+.court{cursor:pointer}
 </style>
 </head>
 <body>
@@ -305,7 +308,6 @@ function makeCourtElement(group,i,candidate){
  d.className=candidate?"court candidateCourt":"court";
  d.dataset.court=candidate?"c"+i:i;
  d.dataset.candidate=candidate?"1":"0";
- d.onclick=selectedCourtClick;
  d.innerHTML=`<div class="courtTitle">${candidate?"🟡 候補區 "+(i+1):`🏸 ${esc(courtLabel(i))} <button class="courtEditBtn" onclick="event.stopPropagation();editCourtName(${i})" title="修改場地名稱">✏️</button>`}</div><div class="courtGrid"></div><div class="courtFoot">${candidate?`<button class="speak" title="播報" onclick="event.stopPropagation();speakCandidate(${i})">🔊</button><button class="down" onclick="event.stopPropagation();finishCandidate(${i})">↩️ 回等候區</button>`:`<button class="speak" title="播報" onclick="event.stopPropagation();speakCourt(${i})">🔊</button><button class="down" onclick="event.stopPropagation();finishCourt(${i})">🏸 下場</button>`}</div>`;
  let grid=d.querySelector(".courtGrid");
  (group||[]).forEach(id=>{let p=byId(id);if(p)grid.insertAdjacentHTML("beforeend",playerHTML(p))});
@@ -319,19 +321,18 @@ function renderCourts(){
  let el=document.getElementById("courts");el.innerHTML="";
  state.courts.forEach((g,i)=>el.appendChild(makeCourtElement(g,i,false)));
  let wrap=document.createElement("div");wrap.className="candidateSection";
- wrap.innerHTML='<div class="candidateTitle">🟡 候補區 <small>（滑鼠或手指按住球友即可拖曳；候補1→上場，候補2→候補1，候補3→候補2）</small></div>';
+ wrap.innerHTML='<div class="candidateTitle">🟡 候補區 <small>（先點球友，再點要移動到的場地）</small></div>';
  let grid=document.createElement("div");grid.className="candidateCourts";
  state.candidateCourts.forEach((g,i)=>grid.appendChild(makeCourtElement(g,i,true)));
  wrap.appendChild(grid);el.appendChild(wrap);
 }
 function playerHTML(p){
- return `<div class="player ${p.cls}" data-player-id="${esc(String(p.id))}" onclick='event.stopPropagation();selectPlayer(${JSON.stringify(String(p.id))},this)'><div class="avatar">${p.avatar}</div><div class="pname">${esc(p.name)}</div></div>`
+ return `<div class="player ${p.cls}" data-player-id="${esc(String(p.id))}"><div class="avatar">${p.avatar}</div><div class="pname">${esc(p.name)}</div></div>`
 }
 function renderQueue(){
  let el=document.getElementById("queue");el.innerHTML="";
- queuePlayers().forEach((p,i)=>el.insertAdjacentHTML("beforeend",
- `<div class="qitem" data-player-id="${esc(String(p.id))}" data-queue-index="${state.queue.findIndex(x=>String(x)===String(p.id))}" onclick="event.stopPropagation();selectPlayer(${JSON.stringify(String(p.id))},this)"><div class="avatar">${p.avatar}</div><div class="qname">${esc(p.name)}</div></div>`));
- el.insertAdjacentHTML("beforeend",`<div class="dropHint">⬇️ 拖到這裡，放到休息區最後</div>`);
+ queuePlayers().forEach(p=>el.insertAdjacentHTML("beforeend",
+ `<div class="qitem" data-player-id="${esc(String(p.id))}"><div class="avatar">${p.avatar}</div><div class="qname">${esc(p.name)}</div></div>`));
 }
 
 let selectedPlayerId=null;
@@ -355,59 +356,95 @@ function editCourtName(i){
  save();
 }
 
-function selectPlayer(id,el){
- id=String(id);
- if(selectedPlayerId===id){
-   selectedPlayerId=null;
-   document.querySelectorAll(".selectedPlayer").forEach(x=>x.classList.remove("selectedPlayer"));
-   refreshTapMoveUI();
-   return;
- }
- selectedPlayerId=id;
- document.querySelectorAll(".selectedPlayer").forEach(x=>x.classList.remove("selectedPlayer"));
- document.querySelectorAll(`[data-player-id="${CSS.escape(id)}"]`).forEach(x=>x.classList.add("selectedPlayer"));
- refreshTapMoveUI();
+
+
+
+
+
+
+
+function clearPlayerSelection(){
+ selectedPlayerId=null;
+ document.querySelectorAll(".selectedPlayer").forEach(el=>el.classList.remove("selectedPlayer"));
+ const bar=document.getElementById("simpleSelectBar");
+ if(bar)bar.classList.remove("show");
 }
 
-function selectedCourtClick(e){
- if(e.target.closest("button"))return;
+function showPlayerSelection(id){
+ id=String(id);
+ if(selectedPlayerId===id){ clearPlayerSelection(); return; }
+ selectedPlayerId=id;
+ document.querySelectorAll(".selectedPlayer").forEach(el=>el.classList.remove("selectedPlayer"));
+ document.querySelectorAll("[data-player-id]").forEach(el=>{
+   if(String(el.dataset.playerId)===id)el.classList.add("selectedPlayer");
+ });
+ const p=byId(id);
+ const bar=document.getElementById("simpleSelectBar");
+ if(bar){
+   bar.querySelector("span").textContent=p?`已選：${p.name} → 再點球場／候補區／休息區`:"已選取球友";
+   bar.classList.add("show");
+ }
+}
+
+function moveSelectedToCourt(court){
  if(!selectedPlayerId)return;
- const court=e.currentTarget;
+ const id=String(selectedPlayerId);
  const candidate=court.dataset.candidate==="1";
- const i=candidate?Number(court.dataset.court.slice(1)):Number(court.dataset.court);
+ const i=candidate?Number(String(court.dataset.court).replace("c","")):Number(court.dataset.court);
  let group=candidate?state.candidateCourts[i]:state.courts[i];
  if(!Array.isArray(group))group=[];
 
- if(group.some(x=>String(x)===String(selectedPlayerId))){
-   selectedPlayerId=null;
-   render();
-   refreshTapMoveUI();
-   return;
- }
+ if(group.some(x=>String(x)===id)){ clearPlayerSelection(); return; }
  if(group.length>=(state.settings.perGame||4)){
    alert(candidate?`候補區 ${i+1} 已滿`:`${courtLabel(i)} 已滿`);
    return;
  }
-
- const id=String(selectedPlayerId);
  removeFromAllLocations(id);
  group.push(id);
  if(candidate)state.candidateCourts[i]=group;
  else state.courts[i]=group;
  selectedPlayerId=null;
  save();
- refreshTapMoveUI();
+ clearPlayerSelection();
 }
 
-function moveSelectedToQueue(){
+function moveSelectedToRest(){
  if(!selectedPlayerId)return;
  const id=String(selectedPlayerId);
  removeFromAllLocations(id);
  if(!state.queue.some(x=>String(x)===id))state.queue.push(id);
  selectedPlayerId=null;
  save();
- refreshTapMoveUI();
+ clearPlayerSelection();
 }
+
+/* 唯一一個球友移動 click handler */
+document.addEventListener("click",function(e){
+ const player=e.target.closest("[data-player-id]");
+ if(player){
+   e.preventDefault();
+   e.stopPropagation();
+   showPlayerSelection(player.dataset.playerId);
+   return;
+ }
+
+ if(!selectedPlayerId)return;
+
+ const court=e.target.closest(".court");
+ if(court){
+   if(e.target.closest("button"))return;
+   e.preventDefault();
+   moveSelectedToCourt(court);
+   return;
+ }
+
+ if(e.target.closest("#simpleRestButton")){
+   e.preventDefault();
+   moveSelectedToRest();
+   return;
+ }
+});
+
 
 function nextRound(){
   let ci=state.courts.findIndex(c=>!c);
@@ -534,85 +571,18 @@ document.getElementById("modal").addEventListener("click",e=>{if(e.target.id==="
 render();
 
 // 人工排點：固定依休息區目前排列順序上場，不使用隨機抽選。
-// 休息區內的球友可單人自由拖曳到正式場地或任一候補區。
 state.settings.random=false;
 
 
-// 拖曳採用 Pointer Events：滑鼠與手機觸控都可直接按住球友拖曳。
 // 排點固定依目前休息區順序，不使用隨機。
 state.settings.random=false;
 
 
-document.addEventListener("click",function(e){
- if(!selectedPlayerId)return;
- if(e.target.closest(".qitem"))return;
- if(e.target.closest(".queuePanel"))moveSelectedToQueue();
-});
+
 
 </script>
-<script id="tap-move-enhancement">
-(function(){
-  function getSelectedPlayer(){
-    if(typeof selectedPlayerId === "undefined" || selectedPlayerId == null) return null;
-    return typeof byId === "function" ? byId(selectedPlayerId) : null;
-  }
 
-  function ensureBar(){
-    let bar=document.getElementById("tapMoveBar");
-    if(bar) return bar;
-    bar=document.createElement("div");
-    bar.id="tapMoveBar";
-    bar.className="tapMoveBar";
-    bar.innerHTML='<span id="tapMoveText">已選取球友</span><button onclick="tapMoveQueue()">😴 休息區</button><button onclick="tapCancelMove()" class="cancelMove">✕ 取消</button>';
-    document.body.appendChild(bar);
-    return bar;
-  }
 
-  window.refreshTapMoveUI=function(){
-    const p=getSelectedPlayer(), bar=ensureBar();
-    document.querySelectorAll(".tapDestination").forEach(x=>x.classList.remove("tapDestination"));
-    if(!p){ bar.classList.remove("show"); return; }
-    document.getElementById("tapMoveText").textContent="已選："+p.name+" → 點球場/候補區";
-    bar.classList.add("show");
-    document.querySelectorAll(".court").forEach(c=>c.classList.add("tapDestination"));
-    document.querySelector(".queuePanel")?.classList.add("tapDestination");
-  };
-
-  window.tapCancelMove=function(){
-    selectedPlayerId=null;
-    document.querySelectorAll(".selectedPlayer").forEach(x=>x.classList.remove("selectedPlayer"));
-    refreshTapMoveUI();
-  };
-
-  window.tapMoveQueue=function(){
-    if(selectedPlayerId==null)return;
-    const id=selectedPlayerId;
-    removeFromAllLocations(id);
-    if(!state.queue.some(x=>String(x)===String(id)))state.queue.push(String(id));
-    selectedPlayerId=null;
-    save();
-    setTimeout(refreshTapMoveUI,0);
-  };
-
-  // 讓「休息區整塊」也可作為點選目的地。
-  document.addEventListener("click",function(e){
-    if(selectedPlayerId==null)return;
-    if(typeof suppressDestinationClickUntil!=="undefined" && Date.now()<suppressDestinationClickUntil)return;
-    const qp=e.target.closest?.(".queuePanel");
-    if(!qp || e.target.closest(".qitem"))return;
-    e.preventDefault();
-    tapMoveQueue();
-  },true);
-
-  // 場地點擊完成移動後同步清掉提示。
-  document.addEventListener("click",function(e){
-    if(e.target.closest?.(".court")) setTimeout(refreshTapMoveUI,0);
-  });
-
-  ensureBar();
-  refreshTapMoveUI();
-})();
-</script>
-
+<div id="simpleSelectBar" class="simpleSelectBar"><span>已選取球友</span><button id="simpleRestButton" type="button">😴 移到休息區</button><button type="button" onclick="clearPlayerSelection()">✕ 取消</button></div>
 </body>
 </html>
