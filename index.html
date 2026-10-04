@@ -336,6 +336,10 @@ input,select,textarea{
 }
 </style>
 
+<style id="reliable-name-editor">
+#editPlayerName{font-size:18px!important;padding:12px!important;width:100%;box-sizing:border-box}
+#savePlayerNameBtn{background:#147a58!important;color:#fff!important}
+</style>
 </head>
 <body>
 <header class="header">
@@ -481,23 +485,7 @@ function editCourtName(i){
 function editSelectedPlayerName(){
  if(!selectedPlayerId)return;
  const id=String(selectedPlayerId);
- const p=byId(id);
- if(!p)return;
- const next=prompt("修改球友名字：",p.name||"");
- if(next===null)return;
- const name=next.trim();
- if(!name){alert("名字不能空白");return;}
- p.name=name;
- save();
- document.querySelectorAll("[data-player-id]").forEach(el=>{
-   if(String(el.dataset.playerId)===id)el.classList.add("selectedPlayer");
- });
- const bar=document.getElementById("simpleSelectBar");
- if(bar){
-   const span=bar.querySelector("span");
-   if(span)span.textContent=`已選：${name} → 再點球場／候補區／休息區`;
-   bar.classList.add("show");
- }
+ editPlayer(id);
 }
 
 function clearPlayerSelection(){
@@ -648,7 +636,7 @@ function openManage(){
  <div class="field"><label>新增姓名</label><input id="newName" placeholder="例如：小明"></div>
  <div class="field"><label>批次加入（每行一人）</label><textarea id="batch" class="batch" placeholder="小明\n小華\n小美"></textarea></div>
  <div class="tools"><button class="tool" onclick="addPlayers()">➕ 新增</button><button class="tool danger" onclick="closeModal()">關閉</button></div>
- <hr><div style="font-weight:900;margin-bottom:8px">目前球友：${state.players.length} 人</div>
+ <hr><div style="font-weight:900;margin-bottom:4px">目前球友：${state.players.length} 人</div><div style="font-size:12px;color:#6b7b86;margin-bottom:8px">點每位球友右側「✏️ 修改」即可編輯姓名</div>
  <div style="max-height:330px;overflow:auto">${state.players.map(p=>`<div style="padding:8px;border-bottom:1px solid #eee;display:flex;align-items:center;gap:8px"><span style="flex:1">${p.avatar} ${esc(p.name)}</span><button class="tool" style="flex:0 0 auto;padding:6px 10px;background:#e7f7ff;color:#075a94" onclick="editPlayer(${JSON.stringify(p.id)})">✏️ 修改</button><button class="tool danger" style="flex:0 0 auto;padding:6px 10px" onclick="deletePlayer(${JSON.stringify(p.id)})">🗑️ 刪除</button></div>`).join("")}</div>`;
  m.classList.add("show");
 }
@@ -659,8 +647,33 @@ function addPlayers(){
  save();openManage();
 }
 function editPlayer(id){
- let p=byId(id);if(!p)return;let name=prompt("請輸入新的姓名：",p.name);if(name===null)return;name=name.trim();
- if(!name){alert("姓名不能是空白。");return}p.name=name;save();openManage();
+ id=String(id);
+ const p=byId(id);
+ if(!p)return;
+ const m=document.getElementById("modal"),c=document.getElementById("modalCard");
+ c.innerHTML=`<h2>✏️ 修改球友姓名</h2>
+ <div class="field"><label>姓名</label>
+ <input id="editPlayerName" type="text" value="${esc(p.name||"")}" autocomplete="off">
+ </div>
+ <div class="tools">
+   <button class="tool" id="savePlayerNameBtn" type="button">💾 儲存名字</button>
+   <button class="tool danger" id="cancelPlayerNameBtn" type="button">取消</button>
+ </div>`;
+ m.classList.add("show");
+ const input=document.getElementById("editPlayerName");
+ const saveBtn=document.getElementById("savePlayerNameBtn");
+ const cancelBtn=document.getElementById("cancelPlayerNameBtn");
+ setTimeout(()=>{input.focus();input.select();},50);
+ const saveName=()=>{
+   const name=input.value.trim();
+   if(!name){alert("姓名不能是空白。");input.focus();return;}
+   p.name=name;
+   save();
+   openManage();
+ };
+ saveBtn.addEventListener("click",saveName);
+ cancelBtn.addEventListener("click",openManage);
+ input.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();saveName();}});
 }
 function deletePlayer(id){
  let p=byId(id);if(!p)return;if(!confirm(`確定要刪除「${p.name}」嗎？`))return;
