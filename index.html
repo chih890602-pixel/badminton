@@ -327,6 +327,15 @@ input,select,textarea{
 }
 </style>
 
+
+<style id="name-edit-polish">
+@media(max-width:699px){
+ .simpleSelectBar{flex-wrap:wrap;justify-content:center;width:min(94vw,520px)}
+ .simpleSelectBar span{width:100%;text-align:center}
+ .simpleSelectBar button{padding:7px 8px!important}
+}
+</style>
+
 </head>
 <body>
 <header class="header">
@@ -467,6 +476,29 @@ function editCourtName(i){
 
 
 
+
+
+function editSelectedPlayerName(){
+ if(!selectedPlayerId)return;
+ const id=String(selectedPlayerId);
+ const p=byId(id);
+ if(!p)return;
+ const next=prompt("修改球友名字：",p.name||"");
+ if(next===null)return;
+ const name=next.trim();
+ if(!name){alert("名字不能空白");return;}
+ p.name=name;
+ save();
+ document.querySelectorAll("[data-player-id]").forEach(el=>{
+   if(String(el.dataset.playerId)===id)el.classList.add("selectedPlayer");
+ });
+ const bar=document.getElementById("simpleSelectBar");
+ if(bar){
+   const span=bar.querySelector("span");
+   if(span)span.textContent=`已選：${name} → 再點球場／候補區／休息區`;
+   bar.classList.add("show");
+ }
+}
 
 function clearPlayerSelection(){
  selectedPlayerId=null;
@@ -688,6 +720,6 @@ state.settings.random=false;
 </script>
 
 
-<div id="simpleSelectBar" class="simpleSelectBar"><span>已選取球友</span><button id="simpleRestButton" type="button">😴 移到休息區</button><button type="button" onclick="clearPlayerSelection()">✕ 取消</button></div>
+<div id="simpleSelectBar" class="simpleSelectBar"><span>已選取球友</span><button type="button" onclick="editSelectedPlayerName()">✏️ 改名字</button><button id="simpleRestButton" type="button">😴 移到休息區</button><button type="button" onclick="clearPlayerSelection()">✕ 取消</button></div>
 </body>
 </html>
