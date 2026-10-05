@@ -638,8 +638,8 @@ const VOICE_PREF_KEY="badminton_voice_pref_v1";
 function loadVoicePrefs(){
  try{
    const x=JSON.parse(localStorage.getItem(VOICE_PREF_KEY)||"{}");
-   return {voiceName:x.voiceName||"",rate:Number(x.rate)||1.04,pitch:Number(x.pitch)||1.11};
- }catch(e){return {voiceName:"",rate:1.04,pitch:1.11};}
+   return {voiceName:x.voiceName||"",rate:Number(x.rate)||1.05,pitch:Number(x.pitch)||1.17};
+ }catch(e){return {voiceName:"",rate:1.05,pitch:1.17};}
 }
 function saveVoicePrefs(p){
  localStorage.setItem(VOICE_PREF_KEY,JSON.stringify(p));
@@ -698,7 +698,7 @@ function openVoiceSettings(){
  <div class="field"><label>聲音高低 <b id="voicePitchText">${pref.pitch.toFixed(2)}</b></label>
  <input id="voicePitch" type="range" min="0.90" max="1.22" step="0.01" value="${pref.pitch}"></div>
  <div style="font-size:12px;color:#667781;line-height:1.5;margin:8px 0 12px">
- 目前建議：語速 1.04、音調 1.11，會比較溫和、清亮又不拖拍。可用的人聲取決於這台 iPhone／iPad 已安裝的系統語音。
+ 目前建議：語速 1.05、音調 1.17，聲線會更清亮、偏高、溫和又俐落。可用的人聲取決於這台 iPhone／iPad 已安裝的系統語音。
  </div>
  <div class="tools">
   <button class="tool" id="voicePreviewBtn" type="button">▶️ 試聽</button>
@@ -726,8 +726,9 @@ function openVoiceSettings(){
    const raw=localStorage.getItem(VOICE_PREF_KEY);
    if(!raw)return;
    const p=JSON.parse(raw);
-   if(Number(p.rate)===0.92 && Number(p.pitch)===1.02){
-     p.rate=1.04;p.pitch=1.11;saveVoicePrefs(p);
+   if((Number(p.rate)===0.92 && Number(p.pitch)===1.02) ||
+      (Number(p.rate)===1.04 && Number(p.pitch)===1.11)){
+     p.rate=1.05;p.pitch=1.17;saveVoicePrefs(p);
    }
  }catch(e){}
 })();
