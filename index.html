@@ -360,8 +360,8 @@ input,select,textarea{
 <main class="main">
 <section id="courts" class="courts"></section>
 <section class="dashboard"><div class="panel queuePanel">
-<h2>😴 休息區 <small style="font-size:13px">（可自由拖曳）</small></h2>
-<div style="margin-bottom:10px;font-weight:900;color:#0874ad">目前休息：<span id="waitCount2">0</span> 人　<span style="font-size:12px;color:#789">可直接拖曳球友到候補區或上場區</span></div>
+<h2>😴 休息區 <small style="font-size:13px">（點選球友後，再點目的地）</small></h2>
+<div style="margin-bottom:10px;font-weight:900;color:#0874ad">目前休息：<span id="waitCount2">0</span> 人　<span style="font-size:12px;color:#789">點選球友後，可移到候補區或上場區</span></div>
 <div id="queue" class="queue"></div>
 </div>
 </section>
@@ -545,6 +545,12 @@ function moveSelectedToRest(){
 
 /* 唯一一個球友移動 click handler */
 document.addEventListener("click",function(e){
+ if(e.target.closest("#editSelectedNameBtn")){
+   e.preventDefault();e.stopPropagation();editSelectedPlayerName();return;
+ }
+ if(e.target.closest("#cancelSelectedPlayerBtn")){
+   e.preventDefault();e.stopPropagation();clearPlayerSelection();return;
+ }
  const player=e.target.closest("[data-player-id]");
  if(player){
    e.preventDefault();
@@ -637,8 +643,16 @@ function openManage(){
  <div class="field"><label>批次加入（每行一人）</label><textarea id="batch" class="batch" placeholder="小明\n小華\n小美"></textarea></div>
  <div class="tools"><button class="tool" onclick="addPlayers()">➕ 新增</button><button class="tool danger" onclick="closeModal()">關閉</button></div>
  <hr><div style="font-weight:900;margin-bottom:4px">目前球友：${state.players.length} 人</div><div style="font-size:12px;color:#6b7b86;margin-bottom:8px">點每位球友右側「✏️ 修改」即可編輯姓名</div>
- <div style="max-height:330px;overflow:auto">${state.players.map(p=>`<div style="padding:8px;border-bottom:1px solid #eee;display:flex;align-items:center;gap:8px"><span style="flex:1">${p.avatar} ${esc(p.name)}</span><button class="tool" style="flex:0 0 auto;padding:6px 10px;background:#e7f7ff;color:#075a94" onclick="editPlayer(${JSON.stringify(p.id)})">✏️ 修改</button><button class="tool danger" style="flex:0 0 auto;padding:6px 10px" onclick="deletePlayer(${JSON.stringify(p.id)})">🗑️ 刪除</button></div>`).join("")}</div>`;
+ <div id="playerManageList" style="max-height:330px;overflow:auto">${state.players.map(p=>`<div class="managePlayerRow" data-manage-player-id="${esc(String(p.id))}" style="padding:8px;border-bottom:1px solid #eee;display:flex;align-items:center;gap:8px"><span style="flex:1">${p.avatar} ${esc(p.name)}</span><button class="tool editPlayerBtn" type="button" style="flex:0 0 auto;padding:6px 10px;background:#e7f7ff;color:#075a94">✏️ 修改</button><button class="tool danger deletePlayerBtn" type="button" style="flex:0 0 auto;padding:6px 10px">🗑️ 刪除</button></div>`).join("")}</div>`;
  m.classList.add("show");
+ const list=document.getElementById("playerManageList");
+ list.addEventListener("click",e=>{
+   const row=e.target.closest(".managePlayerRow");
+   if(!row)return;
+   const id=String(row.dataset.managePlayerId);
+   if(e.target.closest(".editPlayerBtn")){e.preventDefault();e.stopPropagation();editPlayer(id);return;}
+   if(e.target.closest(".deletePlayerBtn")){e.preventDefault();e.stopPropagation();deletePlayer(id);return;}
+ });
 }
 function addPlayers(){
  let a=[],n=document.getElementById("newName").value.trim();if(n)a.push(n);
@@ -733,6 +747,6 @@ state.settings.random=false;
 </script>
 
 
-<div id="simpleSelectBar" class="simpleSelectBar"><span>已選取球友</span><button type="button" onclick="editSelectedPlayerName()">✏️ 改名字</button><button id="simpleRestButton" type="button">😴 移到休息區</button><button type="button" onclick="clearPlayerSelection()">✕ 取消</button></div>
+<div id="simpleSelectBar" class="simpleSelectBar"><span>已選取球友</span><button type="button" id="editSelectedNameBtn">✏️ 改名字</button><button id="simpleRestButton" type="button">😴 移到休息區</button><button type="button" id="cancelSelectedPlayerBtn">✕ 取消</button></div>
 </body>
 </html>
