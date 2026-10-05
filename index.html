@@ -340,6 +340,16 @@ input,select,textarea{
 #editPlayerName{font-size:18px!important;padding:12px!important;width:100%;box-sizing:border-box}
 #savePlayerNameBtn{background:#147a58!important;color:#fff!important}
 </style>
+
+<style id="voice-settings-polish">
+#voiceRate{width:100%}
+#voiceSettingsFloat{
+ position:fixed;right:10px;bottom:10px;z-index:850;
+ border:0;border-radius:12px;padding:9px 12px;font-weight:800;
+ box-shadow:0 5px 16px rgba(0,0,0,.16);
+}
+</style>
+
 </head>
 <body>
 <header class="header">
@@ -623,16 +633,108 @@ function getNaturalZhVoice(){
  }
  return zh.find(v=>v.localService)||zh[0]||voices.find(v=>/^zh/i.test(v.lang))||null;
 }
+const VOICE_PREF_KEY="badminton_voice_pref_v1";
+
+function loadVoicePrefs(){
+ try{
+   const x=JSON.parse(localStorage.getItem(VOICE_PREF_KEY)||"{}");
+   return {voiceName:x.voiceName||"",rate:Number(x.rate)||1.04,pitch:Number(x.pitch)||1.11};
+ }catch(e){return {voiceName:"",rate:1.04,pitch:1.11};}
+}
+function saveVoicePrefs(p){
+ localStorage.setItem(VOICE_PREF_KEY,JSON.stringify(p));
+}
+function availableZhVoices(){
+ if(!("speechSynthesis" in window))return [];
+ const all=speechSynthesis.getVoices()||[];
+ const zh=all.filter(v=>/^zh/i.test(v.lang)||/Chinese|Mandarin|中文|國語|台灣|臺灣/i.test(v.name));
+ return zh.length?zh:all;
+}
+function chooseBestVoice(prefName=""){
+ const voices=availableZhVoices();
+ if(!voices.length)return null;
+ if(prefName){
+   const exact=voices.find(v=>v.name===prefName);
+   if(exact)return exact;
+ }
+ const score=v=>{
+   let s=0,n=(v.name||"").toLowerCase(),l=(v.lang||"").toLowerCase();
+   if(l==="zh-tw"||l.startsWith("zh-tw"))s+=100;
+   if(/taiwan|台灣|臺灣/.test(n))s+=40;
+   if(v.localService)s+=10;
+   if(/meijia|mei-jia|美佳|ting|婷婷|sin-ji|怡君/.test(n))s+=20;
+   return s;
+ };
+ return [...voices].sort((a,b)=>score(b)-score(a))[0]||voices[0];
+}
 function speakText(t){
- if(!state.settings.voice||!("speechSynthesis"in window))return;
+ if(!state.settings.voice||!("speechSynthesis" in window))return;
+ const pref=loadVoicePrefs();
  speechSynthesis.cancel();
- let u=new SpeechSynthesisUtterance(t);
+ const u=new SpeechSynthesisUtterance(t);
  u.lang="zh-TW";
- let v=getNaturalZhVoice();if(v)u.voice=v;
- u.rate=.96;       // 接近一般人說話速度
- u.pitch=1.03;     // 稍微柔和自然
+ const v=chooseBestVoice(pref.voiceName);
+ if(v)u.voice=v;
+ u.rate=Math.min(1.15,Math.max(.72,pref.rate));
+ u.pitch=Math.min(1.25,Math.max(.85,pref.pitch));
  u.volume=1;
  speechSynthesis.speak(u);
+}
+function voiceTestText(){
+ return "Marco、Julie，請至 A 場地。";
+}
+function openVoiceSettings(){
+ const m=document.getElementById("modal"),c=document.getElementById("modalCard");
+ const pref=loadVoicePrefs(),voices=availableZhVoices();
+ const opts=voices.map(v=>{
+   const sel=(pref.voiceName?v.name===pref.voiceName:v===chooseBestVoice(""))?" selected":"";
+   return `<option value="${esc(v.name)}"${sel}>${esc(v.name)}${v.lang?"（"+esc(v.lang)+"）":""}</option>`;
+ }).join("");
+ c.innerHTML=`<h2>🔊 語音設定</h2>
+ <div class="field"><label>中文人聲</label>
+ <select id="voiceChoice">${opts||'<option value="">使用裝置預設語音</option>'}</select></div>
+ <div class="field"><label>語速 <b id="voiceRateText">${pref.rate.toFixed(2)}</b></label>
+ <input id="voiceRate" type="range" min="0.80" max="1.18" step="0.01" value="${pref.rate}"></div>
+ <div class="field"><label>聲音高低 <b id="voicePitchText">${pref.pitch.toFixed(2)}</b></label>
+ <input id="voicePitch" type="range" min="0.90" max="1.22" step="0.01" value="${pref.pitch}"></div>
+ <div style="font-size:12px;color:#667781;line-height:1.5;margin:8px 0 12px">
+ 目前建議：語速 1.04、音調 1.11，會比較溫和、清亮又不拖拍。可用的人聲取決於這台 iPhone／iPad 已安裝的系統語音。
+ </div>
+ <div class="tools">
+  <button class="tool" id="voicePreviewBtn" type="button">▶️ 試聽</button>
+  <button class="tool" id="voiceSaveBtn" type="button">💾 儲存語音</button>
+  <button class="tool danger" id="voiceCloseBtn" type="button">關閉</button>
+ </div>`;
+ m.classList.add("show");
+ const rate=document.getElementById("voiceRate"),rateText=document.getElementById("voiceRateText");
+ const pitch=document.getElementById("voicePitch"),pitchText=document.getElementById("voicePitchText");
+ rate.addEventListener("input",()=>rateText.textContent=Number(rate.value).toFixed(2));
+ pitch.addEventListener("input",()=>pitchText.textContent=Number(pitch.value).toFixed(2));
+ const current=()=>({voiceName:document.getElementById("voiceChoice").value,rate:Number(rate.value),pitch:Number(pitch.value)});
+ document.getElementById("voicePreviewBtn").addEventListener("click",()=>{
+   const p=current(),old=loadVoicePrefs();saveVoicePrefs(p);speakText(voiceTestText());saveVoicePrefs(old);
+ });
+ document.getElementById("voiceSaveBtn").addEventListener("click",()=>{
+   saveVoicePrefs(current());
+   alert("語音設定已儲存");
+ });
+ document.getElementById("voiceCloseBtn").addEventListener("click",()=>m.classList.remove("show"));
+}
+
+(function migrateGentleVoiceDefault(){
+ try{
+   const raw=localStorage.getItem(VOICE_PREF_KEY);
+   if(!raw)return;
+   const p=JSON.parse(raw);
+   if(Number(p.rate)===0.92 && Number(p.pitch)===1.02){
+     p.rate=1.04;p.pitch=1.11;saveVoicePrefs(p);
+   }
+ }catch(e){}
+})();
+
+if("speechSynthesis" in window){
+ speechSynthesis.getVoices();
+ speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices();
 }
 function shuffleQueue(){state.queue.sort(()=>Math.random()-.5);save()}
 
@@ -748,5 +850,6 @@ state.settings.random=false;
 
 
 <div id="simpleSelectBar" class="simpleSelectBar"><span>已選取球友</span><button type="button" id="editSelectedNameBtn">✏️ 改名字</button><button id="simpleRestButton" type="button">😴 移到休息區</button><button type="button" id="cancelSelectedPlayerBtn">✕ 取消</button></div>
+<button id="voiceSettingsFloat" type="button" onclick="openVoiceSettings()">🔊 語音設定</button>
 </body>
 </html>
